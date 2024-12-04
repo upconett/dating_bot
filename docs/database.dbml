@@ -1,0 +1,62 @@
+Project dating_bot {
+    database_type: "PostgreSQL / SQLite"
+    Note: "I still don't know the title"
+}
+
+Table base {
+  created_at timestamp [not null]
+  edited_at timestamp [not null]
+}
+
+Table users {
+    id int [pk, not null, unique]
+    first_name varchar[255] [not null]
+    last_name varchar[255]
+    username varchar[255]
+}
+
+Table cards {
+    id int [pk, increment]
+    user_id int [unique, not null]
+    name varchar[255] [not null]
+    age int [not null]
+    city varchar[255] [not null]
+    sex boolean [not null]
+    interests bitmap [not null]
+    description text
+    Note: 'decide what are interests'
+}
+
+Table likes {
+    id int [pk, increment]
+    sender_id int [not null]
+    receiver_id int [not null]
+}
+
+Table settings {
+    user_id int [pk]
+    seek_age_from int [not null]
+    seek_age_to int [default: null]
+    seek_sex boolean [not null]
+}
+
+Table transactions {
+    id int [pk, increment]
+    user_id int [not null]
+    price int [not null]
+    product varchar[255] [not null]
+}
+
+Table card_media {
+  id int [pk]
+  card_id int [not null]
+  type varchar[255] [not null]
+}
+
+Ref: users.id > settings.user_id
+Ref: users.id > cards.user_id
+Ref: users.id > likes.sender_id
+Ref: users.id > likes.receiver_id
+Ref: users.id > transactions.user_id
+
+Ref: cards.id > card_media.card_id
