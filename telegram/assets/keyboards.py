@@ -1,0 +1,157 @@
+from typing import List, Optional, Any
+
+from telegram import InlineKeyboard, ReplyKeyboard
+from telegram import InlineButton, ReplyButton
+from telegram import InlineKeyboardBuilder, ReplyKeyboardBuilder
+
+from models import Interest
+
+
+def _create_one_interest_button(interest: Interest, chosen: bool) -> InlineButton:
+    return InlineButton(
+        text=interest.russian_name + ("✅" if chosen else ""),
+        callback_data=f"choose_interest_{interest.value}"
+    ) 
+
+
+def _create_interest_buttons(chosen_interests: List[int]) -> List[InlineButton]:
+    buttons = [
+        _create_one_interest_button(interest, chosen=True)
+        if interest.value in chosen_interests
+        else
+        _create_one_interest_button(interest, chosen=False)
+
+        for interest in Interest # <- that's enum
+    ]
+    return buttons
+
+
+start_card_creation = ReplyKeyboard(
+    keyboard=[[ReplyButton(text="Создать анкету")]],
+    resize_keyboard=True,
+    one_time_keyboard=True
+)
+
+
+choose_sex = ReplyKeyboard(
+    keyboard=[
+        [
+            ReplyButton(text="Парень"),
+            ReplyButton(text="Девушка")
+        ]
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=True
+)
+
+
+choose_no_photo = ReplyKeyboard(
+    keyboard=[[ReplyButton(text="Без фото")]],
+    resize_keyboard=True,
+    one_time_keyboard=True
+)
+
+
+def choose_interests(chosen_interests: List[int] = []) -> InlineKeyboard:
+    keyboard = InlineKeyboardBuilder()
+    for button in _create_interest_buttons(chosen_interests):
+        keyboard.add(button)
+    keyboard.add(InlineButton(text="Готово", callback_data="interest_done"))
+    keyboard.adjust(3, 3, 3, 1)
+    return keyboard.as_markup()
+
+
+description_empty: InlineKeyboard = (
+    InlineKeyboardBuilder()
+    .add(InlineButton(text="Оставить пустым", callback_data="description_empty"))
+).as_markup()
+
+
+card_creation_done = ReplyKeyboard(
+    keyboard=[
+        [ReplyButton(text="Да, все ок", callback_data="creation_ok")],
+        [ReplyButton(text="Заполнить анкету заново", callback_data="creation_restart")]
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=True
+)
+
+
+request_who_seek = ReplyKeyboard(
+    keyboard=[
+        [ReplyButton(text="Девушек"), ReplyButton(text="Парней")]
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=True
+)
+
+
+recomended_card = ReplyKeyboard(
+    keyboard=[
+        [
+            ReplyButton(text="❤️"),
+            ReplyButton(text="💬"),
+            ReplyButton(text="💔"),
+            ReplyButton(text="💤")
+        ]
+    ],
+    resize_keyboard=True
+)
+
+
+idle_menu = ReplyKeyboard(
+    keyboard=[
+        [ReplyButton(text="Смотреть анкеты")],
+        [ReplyButton(text="Моя анкета")],
+        [ReplyButton(text="Отключить анкету")]
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=True
+)
+
+
+are_you_sure = ReplyKeyboard(
+    keyboard = [
+        [
+            ReplyButton(text="Да"),
+            ReplyButton(text="Нет")
+        ]
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=True
+)
+
+
+card_menu = ReplyKeyboard(
+    keyboard=[
+        [ReplyButton(text="Смотреть анкеты")],
+        [ReplyButton(text="Заполнить анкету заного")],
+        [ReplyButton(text="Изменить медиа")]
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=True
+)
+
+
+response_card = ReplyKeyboard( # TODO : Must be inline?
+    keyboard=[
+        [
+            ReplyButton(text="❤️"),
+            ReplyButton(text="💔")
+        ],
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=True
+)
+
+
+message_cancel: InlineKeyboard = (
+    InlineKeyboardBuilder()
+    .add(InlineButton(text="Отмена", callback_data="message_cancel"))
+)
+
+
+continue_recomendation = ReplyKeyboard(
+    keyboard=[[ReplyButton(text="Смотреть анкеты")]],
+    resize_keyboard=True
+)
