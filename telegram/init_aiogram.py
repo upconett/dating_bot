@@ -4,6 +4,8 @@ from aiogram import (
     Router as AIOgramRouter
 )
 
+from aiogram import BaseMiddleware
+
 from aiogram.filters import Filter as AIOgramFilter
 from aiogram.filters import StateFilter
 from aiogram import F
@@ -17,7 +19,11 @@ from aiogram.types import (
     ReplyKeyboardMarkup as ReplyKeyboard,
     KeyboardButton as ReplyButton,
     InlineKeyboardMarkup as InlineKeyboard,
-    InlineKeyboardButton as InlineButton
+    InlineKeyboardButton as InlineButton,
+    TelegramObject,
+    ContentType,
+    InputMediaPhoto,
+    InputMediaVideo
 )
 
 from aiogram.utils.keyboard import (

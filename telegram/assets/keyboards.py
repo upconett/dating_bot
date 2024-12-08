@@ -9,7 +9,7 @@ from models import Interest
 
 def _create_one_interest_button(interest: Interest, chosen: bool) -> InlineButton:
     return InlineButton(
-        text=interest.russian_name + ("✅" if chosen else ""),
+        text=("✅ " if chosen else "") + interest.russian_name,
         callback_data=f"choose_interest_{interest.value}"
     ) 
 
@@ -69,8 +69,10 @@ description_empty: InlineKeyboard = (
 
 card_creation_done = ReplyKeyboard(
     keyboard=[
-        [ReplyButton(text="Да, все ок", callback_data="creation_ok")],
-        [ReplyButton(text="Заполнить анкету заново", callback_data="creation_restart")]
+        [
+            ReplyButton(text="Да, все ок", callback_data="creation_ok"),
+            ReplyButton(text="Заполнить анкету заново", callback_data="creation_restart")
+        ]
     ],
     resize_keyboard=True,
     one_time_keyboard=True

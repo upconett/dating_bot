@@ -49,14 +49,27 @@ def card_info(card: Card) -> str:
     interests = _build_interests(card.interests)
     interests_line = "{interests}".format(interests=" ".join(interests))
 
-    return (
-        f"{first_line}\n"
-        "\n"
-        f"{description_line}\n"
-        "\n"
-        f"{interests_line}"
-    )
+    if card.description:
+        return (
+            f"{first_line}\n"
+            "\n"
+            f"{description_line}\n"
+            "\n"
+            f"{interests_line}"
+        )
+    else:
+        return (
+            f"{first_line}\n"
+            "\n"
+            f"{interests_line}"
+        )
 
+
+
+REQUEST_DESCRIPTION = (
+    "И последнее: Напиши немного о себе "
+    "(до 100 символов) или оставь это поле пустым"
+)
 
 CARD_DONE = (
     "Отлично, твоя анкета готова, "
@@ -89,3 +102,32 @@ if __name__ == '__main__':
         media=[]
     )
     print(card_info(card))
+
+
+INVALID_NAME = (
+    "Введите имя длиной не более 20 символов!"
+)
+
+INVALID_AGE = (
+    "Введите только одно число - ваш возраст."
+)
+
+TOO_YOUNG = (
+    "Вы должны быть старше 16 чтобы пользоваться ботом."
+)
+
+INVALID_CITY = (
+    "Введите город одним словом, не более 20 символов!"
+)
+
+INVALID_SEX = (
+    "Введите либо \"Парень\", либо \"Девушка\"."
+)
+
+INVALID_MEDIA = (
+    "Вы можете прикреплять только ФОТО или ВИДЕО"
+)
+
+TOO_MANY_MEDIA = (
+    "Вы можете прикреплять не более 3х вложений"
+)

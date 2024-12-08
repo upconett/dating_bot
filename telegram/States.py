@@ -11,3 +11,5 @@ class States(StatesGroup):
     REQUEST_MEDIA = State()
     REQUEST_INTERESTS = State()
     REQUEST_DESCRIPTION = State()
+
+    CARD_APPROVE = State()
