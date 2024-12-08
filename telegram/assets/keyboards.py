@@ -1,10 +1,13 @@
 from typing import List, Optional, Any
 
-from telegram import InlineKeyboard, ReplyKeyboard
+from telegram import InlineKeyboard, ReplyKeyboard, ReplyKeyboardRemove
 from telegram import InlineButton, ReplyButton
 from telegram import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
 from models import Interest
+
+
+empty = ReplyKeyboardRemove()
 
 
 def _create_one_interest_button(interest: Interest, chosen: bool) -> InlineButton:

@@ -1,3 +1,4 @@
+import asyncio
 from typing import List
 
 from telegram import InlineKeyboard
@@ -44,7 +45,7 @@ class CardCreationHandler(UpdateHandler):
 
     async def step_to_name(self, message: AIOgramMessage, state: FSMContext):
         await self._empty_state_data(state)
-        await message.answer(messages.REQUEST_NAME)
+        await message.answer(messages.REQUEST_NAME, reply_markup=keyboards.empty)
         await state.set_state(States.REQUEST_NAME)
 
 
@@ -99,6 +100,8 @@ class CardCreationHandler(UpdateHandler):
                 text=messages.CHOOSE_INTERESTS,
                 reply_markup=keyboards.choose_interests()
             )
+            to_del = await message.answer(text=".", reply_markup=keyboards.empty)
+            await to_del.delete()
             await state.set_state(States.REQUEST_INTERESTS)
         except InvalidMedia:
             await message.answer(messages.INVALID_MEDIA)
@@ -174,7 +177,6 @@ class CardCreationHandler(UpdateHandler):
 
     async def _show_created_card(self, message: AIOgramMessage, state: FSMContext):
         data = await state.get_data() # TODO : use later
-        # card = create_mock_card()
         card = Card(                    # TODO : Move the creation of card to CardService
             id=1,
             user_id=message.from_user.id,

@@ -17,6 +17,7 @@ from aiogram.types import (
     Message as AIOgramMessage,
     CallbackQuery as AIOgramQuery,
     ReplyKeyboardMarkup as ReplyKeyboard,
+    ReplyKeyboardRemove,
     KeyboardButton as ReplyButton,
     InlineKeyboardMarkup as InlineKeyboard,
     InlineKeyboardButton as InlineButton,
