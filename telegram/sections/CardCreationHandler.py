@@ -86,7 +86,7 @@ class CardCreationHandler(UpdateHandler):
             await self._save_sex(message.text, state)
             await message.answer(
                 text=messages.REQUEST_MEDIA,
-                reply_markup=keyboards.choose_no_photo
+                reply_markup=keyboards.empty
             )
             await state.set_state(States.REQUEST_MEDIA)
         except InvalidSex:
@@ -100,8 +100,6 @@ class CardCreationHandler(UpdateHandler):
                 text=messages.CHOOSE_INTERESTS,
                 reply_markup=keyboards.choose_interests()
             )
-            to_del = await message.answer(text=".", reply_markup=keyboards.empty)
-            await to_del.delete()
             await state.set_state(States.REQUEST_INTERESTS)
         except InvalidMedia:
             await message.answer(messages.INVALID_MEDIA)
@@ -361,7 +359,7 @@ class CardCreationHandler(UpdateHandler):
         self.router.message.register(self.step_age_to_city, F.text, StateFilter(States.REQUEST_AGE))
         self.router.message.register(self.step_city_to_sex, F.text, StateFilter(States.REQUEST_CITY))
         self.router.message.register(self.step_sex_to_media, F.text, StateFilter(States.REQUEST_SEX))
-        self.router.message.register(self.step_media_to_interests, StateFilter(States.REQUEST_MEDIA))
+        self.router.message.register(self.step_media_to_interests, F.photo | F.video | F.sticker | F.document,  StateFilter(States.REQUEST_MEDIA))
         self.router.callback_query.register(self.choose_interest, F.data.startswith("choose_interest_"), StateFilter(States.REQUEST_INTERESTS))
         self.router.callback_query.register(self.step_interest_to_description, F.data.startswith("interest_done"), StateFilter(States.REQUEST_INTERESTS))
         self.router.message.register(self.step_description_to_approve, F.text, StateFilter(States.REQUEST_DESCRIPTION))
