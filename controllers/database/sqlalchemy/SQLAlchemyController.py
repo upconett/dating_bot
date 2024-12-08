@@ -1,24 +1,27 @@
 from typing import Any, List, Dict
+from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker, AsyncAttrs
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from sqlalchemy.future import select as orm_select
 from sqlalchemy import update as orm_update, delete as orm_delete, Result
 from sqlalchemy import Column, DateTime, func
 
-from database import DBController
+from controllers.database import DBController
 
+from .Base import Base
+from .models import *
 
 
 
 class SQLAlchemyController(DBController):
-    def __init__(self, database_url: str, base_model: Base):
+    def __init__(self, database_url: str):
         self.engine = create_async_engine(database_url, echo=False)
         self.async_session = async_sessionmaker(
             bind=self.engine,
             class_=AsyncSession,
             expire_on_commit=False
         )
-        self.base_model = base_model
+        self.base_model = Base
         
 
     def _get_model(self, table: str):
@@ -28,7 +31,7 @@ class SQLAlchemyController(DBController):
                 return cls
         raise ValueError(f"No model found for table '{table}'")
 
-
+    
     async def select(self, table: str, filter_by: Dict[str, Any]) -> List[Dict]:
         async with self.async_session() as session:
             model = self._get_model(table)

@@ -1,4 +1,4 @@
-from abc import ABC
+from logic import UserWriter
 
 class UserService:
-    pass
+    user_writer: UserWriter
