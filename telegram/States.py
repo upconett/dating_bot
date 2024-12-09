@@ -13,3 +13,8 @@ class States(StatesGroup):
     REQUEST_DESCRIPTION = State()
 
     CARD_APPROVE = State()
+
+    REQUEST_WHO_SEEK = State()
+    REQUEST_AGE_SEEK = State()
+
+    TO_RECOMENDATIONS = State()

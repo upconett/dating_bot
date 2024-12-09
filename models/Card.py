@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from typing import Optional, List
 
-from models import Sex
+from models import Sex, Media
 
 
 @dataclass
@@ -15,4 +15,4 @@ class Card:
     city: str
     interests: str
     description: Optional[str]
-    media: Optional[List[str]]
+    media: List[Media]

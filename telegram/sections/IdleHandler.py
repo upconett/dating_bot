@@ -4,13 +4,14 @@ from telegram import FSMContext, States
 
 from telegram.assets import messages, keyboards
 
+from models import User
+
 from services import UserService
 
 
 class IdleHandler(UpdateHandler):
 
     user_service: UserService
-
 
     def __init__(
             self,
@@ -21,12 +22,12 @@ class IdleHandler(UpdateHandler):
         self.user_service = user_service
 
 
-    async def on_start(self, message: AIOgramMessage, state: FSMContext):
+    async def on_start(self, message: AIOgramMessage, state: FSMContext, user: User):
         await message.answer(
             text=messages.START,
             reply_markup=keyboards.start_card_creation
         )
-        await state.set_state(States.START)
+        await state.set_state(States.CARD_APPROVE)
 
 
     def register_handlers(self):

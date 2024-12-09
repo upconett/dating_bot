@@ -22,7 +22,6 @@ from telegram.utils.exceptions import *
 
 
 class CardCreationHandler(UpdateHandler):
-    notification_manager: NotificationManager
     user_service: UserService
     card_service: CardService
 
@@ -30,12 +29,10 @@ class CardCreationHandler(UpdateHandler):
     def __init__(
             self,
             config: UpdateHandlerConfig,
-            notification_manager: NotificationManager,
             user_service: UserService,
             card_service: CardService
         ):
         super().__init__(config)
-        self.notification_manager = notification_manager
         self.user_service = user_service
         self.card_service = card_service
 
@@ -158,16 +155,20 @@ class CardCreationHandler(UpdateHandler):
         await state.set_state(States.REQUEST_NAME)
 
     
-    async def step_approve_to_recomendation_settings(self, message: AIOgramMessage, state: FSMContext):
-        card_data = await self._collect_card_data(state)
+    # async def step_approve_to_recomendation_settings(self, message: AIOgramMessage, state: FSMContext):
+    #     card_data = await self._collect_card_data(state)
 
-        card = await self.card_service.create(card_data, message.from_user.id)
+    #     card = await self.card_service.create(card_data, message.from_user.id)
 
-        await message.answer(
-            text="Конец демо",
-            reply_markup=keyboards.start_card_creation
-        )
-        await state.set_state(States.START)
+    #     await message.answer(
+    #         text="Конец демо",
+    #         reply_markup=keyboards.start_card_creation
+    #     )
+    #     await state.set_state(States.START)
+
+    
+    # async def click_on_done_interests(self, query: AIOgramQuery, state: FSMContext):
+    #     query.answer(messages.CLICK_DONE_INTERESTS)
 
 
     #region UtilityMethods
@@ -365,4 +366,4 @@ class CardCreationHandler(UpdateHandler):
         self.router.message.register(self.step_description_to_approve, F.text, StateFilter(States.REQUEST_DESCRIPTION))
         self.router.callback_query.register(self.step_empty_description_to_approve, F.data == "description_empty", StateFilter(States.REQUEST_DESCRIPTION))
         self.router.message.register(self.step_approve_to_recreate, F.text == "Заполнить анкету заново", StateFilter(States.CARD_APPROVE))
-        self.router.message.register(self.step_approve_to_recomendation_settings, F.text == "Да, все ок", StateFilter(States.CARD_APPROVE))
+        # self.router.message.register(self.step_approve_to_recomendation_settings, F.text == "Да, все ок", StateFilter(States.CARD_APPROVE))

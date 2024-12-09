@@ -79,7 +79,7 @@ def valid_age(age: str) -> bool:
         return False
     if len(age.split()) > 1:
         return False
-    if len(age) > 3:
+    if len(age) > 2:
         return False
     return True
 

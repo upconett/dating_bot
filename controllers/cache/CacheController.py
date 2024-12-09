@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 class CacheController(ABC):
     
     @abstractmethod
-    async def get_data(self, key: str) -> dict | None:
+    async def get_data(self, key: str) -> dict:
         ...
 
     @abstractmethod
@@ -12,8 +12,12 @@ class CacheController(ABC):
         ...
 
     @abstractmethod
-    async def get_inner(self, key: str, inner_key: str) -> Any | None:
+    async def get_inner(self, key: str, inner_key: str) -> Any:
         ...
 
     async def set_inner(self, key: str, inner_key: str, value: Any) -> bool:
+        ...
+
+    @abstractmethod
+    async def remove_key(self, key: str) -> None:
         ...

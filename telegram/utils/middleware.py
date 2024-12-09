@@ -1,10 +1,35 @@
-from telegram import BaseMiddleware, AIOgramMessage, TelegramObject
+from telegram import BaseMiddleware, AIOgramMessage, TelegramObject, AIOgramQuery
 from typing import *
 import asyncio
+
+from services import UserService
+
+
+class DefaultMiddleware(BaseMiddleware):
+    user_service: UserService
+
+    def __init__(self, user_service: UserService):
+        self.user_service = user_service
+        super().__init__()
+
+    async def __call__(
+                self,
+                handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+                event: AIOgramMessage | AIOgramQuery,
+                data: Dict[str, Any]
+        ) -> Any:
+            user = await self.user_service.get_user(event.chat)
+            data['user'] = user
+            return await handler(event, data)
 
 
 class MediaGroupMiddleware(BaseMiddleware):
     media_group_data: dict = {}
+    user_service: UserService
+
+    def __init__(self, user_service: UserService):
+        self.user_service = user_service
+        super().__init__()
 
     async def __call__(
         self,
@@ -23,6 +48,7 @@ class MediaGroupMiddleware(BaseMiddleware):
 
             data['_is_last'] = True
             data['media_group'] = self.media_group_data[message.media_group_id]
+            data['user'] = await self.user_service.get_user(message.chat)
 
             result = await handler(message, data)
 

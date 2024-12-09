@@ -1,4 +1,35 @@
-from logic import UserWriter
+from logic import UserLoader, UserWriter
+
+from telegram import AIOgramChat
+from models import User, Settings, Sex
+
+from logic.static import UserAdapter
+from logic.exceptions import *
+
 
 class UserService:
+    user_loader: UserLoader
     user_writer: UserWriter
+
+
+    def __init__(self, user_loader: UserLoader, user_writer: UserWriter):
+        self.user_loader = user_loader
+        self.user_writer = user_writer
+
+
+    async def get_user(self, chat: AIOgramChat) -> User:
+        try:
+            return await self.user_loader.get_by_tg_id(chat.id)
+        except UserNotFound:
+            raw_user = UserAdapter.from_aiogram_chat(chat)
+            await self.user_writer.create(raw_user)
+            return await self.user_loader.get_by_tg_id(chat.id)
+
+
+    async def update_user(self, user: User) -> None:
+        try:
+            await self.user_writer.update(user)
+        except UserNotFound:
+            await self.user_writer.create(user)
+        except SettingsNotCreated:
+            print("Blyat, cho za huyna")

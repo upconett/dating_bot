@@ -1,0 +1,1 @@
+class NoDataInCache(Exception): pass

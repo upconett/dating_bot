@@ -8,8 +8,8 @@ from sqlalchemy import ForeignKey
 class User(Base):
     __tablename__ = "users"
 
-    tg_id: Mapped[int] = mapped_column(primary_key=True)
-    internal_id: Mapped[int] = mapped_column(autoincrement=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    tg_id: Mapped[int] = mapped_column(unique=True, nullable=False)
     first_name: Mapped[str] = mapped_column(nullable=False)
     last_name: Mapped[Optional[str]] = mapped_column(nullable=True)
     username: Mapped[Optional[str]] = mapped_column(nullable=True)
@@ -32,8 +32,8 @@ class Settings(Base):
 class Card(Base):
     __tablename__ = "cards"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.tg_id"), nullable=False)
+    id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(nullable=False)
     name: Mapped[str] = mapped_column(nullable=False)
     age: Mapped[int] = mapped_column(nullable=False)
     city: Mapped[str] = mapped_column(nullable=False)
@@ -42,7 +42,11 @@ class Card(Base):
     description: Mapped[Optional[str]] = mapped_column()
 
     media: Mapped[List["Media"]] = relationship(back_populates="card")
-    user: Mapped["User"] = relationship()
+    user: Mapped["User"] = relationship(
+        "User",
+        foreign_keys=[id],
+        primaryjoin="User.id == Card.id",
+    )
 
     def __repr__(self) -> str:
         return f"Card(id={self.id}, user_id={self.user_id})"

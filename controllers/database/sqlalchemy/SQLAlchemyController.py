@@ -2,6 +2,7 @@ from typing import Any, List, Dict
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker, AsyncAttrs
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from sqlalchemy.inspection import inspect
 from sqlalchemy.future import select as orm_select
 from sqlalchemy import update as orm_update, delete as orm_delete, Result
 from sqlalchemy import Column, DateTime, func
@@ -39,7 +40,7 @@ class SQLAlchemyController(DBController):
             if filter_by:
                 query = query.filter_by(**filter_by)
             result: Result = await session.execute(query)
-            return [row._asdict() for row in result.scalars().all()]
+            return [self.to_dict(row) for row in result.scalars().all()]
 
 
     async def insert(self, table: str, data: Dict[str, Any]) -> bool:
@@ -60,9 +61,14 @@ class SQLAlchemyController(DBController):
                     for key, value in filter_by.items()
                 ]
             ).values(**data)
-            await session.execute(query)
+            result = await session.execute(query)
             await session.commit()
+            
+            if result.rowcount == 0:
+                return False
+            
             return True
+
 
 
     async def delete(self, table: str, filter_by: Dict[str, Any]) -> bool:
@@ -87,3 +93,7 @@ class SQLAlchemyController(DBController):
             except Exception:
                 await session.commit()
                 return True
+
+
+    def to_dict(self, obj):
+        return {c.key: getattr(obj, c.key) for c in inspect(obj).mapper.column_attrs}
