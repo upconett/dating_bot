@@ -37,6 +37,7 @@ class MediaGroupMiddleware(BaseMiddleware):
         message: AIOgramMessage,
         data: Dict[str, Any]
     ) -> Any:
+        data['user'] = await self.user_service.get_user(message.chat)
         if not message.media_group_id:
             data['media_group'] = None
             return await handler(message, data)
@@ -48,7 +49,6 @@ class MediaGroupMiddleware(BaseMiddleware):
 
             data['_is_last'] = True
             data['media_group'] = self.media_group_data[message.media_group_id]
-            data['user'] = await self.user_service.get_user(message.chat)
 
             result = await handler(message, data)
 

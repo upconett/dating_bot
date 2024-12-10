@@ -15,7 +15,7 @@ from telegram import NotificationManager
 
 from services import UserService, CardService
 
-from models import Card, Media
+from models import Card, Media, User
 
 from telegram.utils.card_creation import *
 from telegram.utils.exceptions import *
@@ -154,29 +154,33 @@ class CardCreationHandler(UpdateHandler):
         await message.answer(messages.REQUEST_NAME)
         await state.set_state(States.REQUEST_NAME)
 
-    
-    # async def step_approve_to_recomendation_settings(self, message: AIOgramMessage, state: FSMContext):
-    #     card_data = await self._collect_card_data(state)
 
-    #     card = await self.card_service.create(card_data, message.from_user.id)
-
-    #     await message.answer(
-    #         text="Конец демо",
-    #         reply_markup=keyboards.start_card_creation
-    #     )
-    #     await state.set_state(States.START)
+    async def step_card_approve_to_recomendation_settings(self, message: AIOgramMessage, state: FSMContext, user: User):
+        card = await self._create_card(state, user)
+        await message.answer(
+            text=messages.REQUEST_WHO_SEEK,
+            reply_markup=keyboards.request_who_seek
+        )
+        await state.set_state(States.REQUEST_WHO_SEEK)
 
     
-    # async def click_on_done_interests(self, query: AIOgramQuery, state: FSMContext):
-    #     query.answer(messages.CLICK_DONE_INTERESTS)
+    async def click_on_done_interests(self, query: AIOgramQuery, state: FSMContext):
+        await query.answer(messages.CLICK_DONE_INTERESTS)
 
 
     #region UtilityMethods
 
 
+    async def _create_card(self, state: FSMContext, user_id: int) -> Card:
+        state_data = await state.get_data()
+        raw_card = self._card_from_state_data(state_data, user_id)
+        card = await self.card_service.create(raw_card)
+        return card
+
+
     async def _show_created_card(self, message: AIOgramMessage, state: FSMContext):
         data = await state.get_data() # TODO : use later
-        card = Card(                    # TODO : Move the creation of card to CardService
+        card = Card(
             id=1,
             user_id=message.from_user.id,
             name=data.get("name"),
@@ -305,17 +309,18 @@ class CardCreationHandler(UpdateHandler):
         await state.set_data(data)
 
 
-    async def _collect_card_data(self, state: FSMContext):
-        keys = ["name", "age", "city", "sex", "description"]
-        data = await state.get_data()
-        card_data = {}
-        for key in keys:
-            card_data[key] = data[key]
-        card_data["interests"] = ['0']*9
-        for interest in data["interests"]:
-            card_data["interests"][interest] = '1'
-        card_data["interests"] = "".join(card_data["interests"])
-        return card_data
+    def _card_from_state_data(self, state_data: dict, user: User) -> Card:
+        return Card(
+            id=user.id,
+            user_id=user.tg_id,
+            name=state_data.get("name"),
+            sex=Sex(state_data.get("sex")),
+            age=state_data.get("age"),
+            city=state_data.get("city"),
+            interests=self._interests_to_string(state_data.get("interests")),
+            description=state_data.get("description"),
+            media=state_data.get("media")
+        )
 
     
     async def _send_message_with_media(self, message: AIOgramMessage, media: List[Media], text: str = None, keyboard: InlineKeyboard | ReplyKeyboard = None) -> AIOgramMessage:
@@ -351,6 +356,7 @@ class CardCreationHandler(UpdateHandler):
                     reply_markup=keyboard
                 )
 
+
     #region register
 
 
@@ -366,4 +372,5 @@ class CardCreationHandler(UpdateHandler):
         self.router.message.register(self.step_description_to_approve, F.text, StateFilter(States.REQUEST_DESCRIPTION))
         self.router.callback_query.register(self.step_empty_description_to_approve, F.data == "description_empty", StateFilter(States.REQUEST_DESCRIPTION))
         self.router.message.register(self.step_approve_to_recreate, F.text == "Заполнить анкету заново", StateFilter(States.CARD_APPROVE))
-        # self.router.message.register(self.step_approve_to_recomendation_settings, F.text == "Да, все ок", StateFilter(States.CARD_APPROVE))
+        self.router.callback_query.register(self.click_on_done_interests, F.data.startswith("choose_interest_"))
+        self.router.message.register(self.step_card_approve_to_recomendation_settings, F.text == "Да, все ок", StateFilter(States.CARD_APPROVE))

@@ -35,15 +35,8 @@ class SettingsHandler(UpdateHandler):
 
     
     #region Handles
-
-    async def step_card_approve_to_seek_sex(self, message: AIOgramMessage, state: FSMContext):
-        await message.answer(
-            text=messages.REQUEST_WHO_SEEK,
-            reply_markup=keyboards.request_who_seek
-        )
-        await state.set_state(States.REQUEST_WHO_SEEK)
-
     
+
     async def step_seek_sex_to_seek_age(self, message: AIOgramMessage, state: FSMContext):
         try:
             await self._save_sex(message.text, state)
@@ -128,7 +121,6 @@ class SettingsHandler(UpdateHandler):
 
 
     def register_handlers(self):
-        self.router.message.register(self.step_card_approve_to_seek_sex, F.text == "Да, все ок", StateFilter(States.CARD_APPROVE))
         self.router.message.register(self.step_seek_sex_to_seek_age, F.text, StateFilter(States.REQUEST_WHO_SEEK))
         self.router.message.register(self.step_seek_age_to_recomendations, F.text, StateFilter(States.REQUEST_AGE_SEEK))
        

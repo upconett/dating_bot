@@ -27,7 +27,7 @@ class IdleHandler(UpdateHandler):
             text=messages.START,
             reply_markup=keyboards.start_card_creation
         )
-        await state.set_state(States.CARD_APPROVE)
+        await state.set_state(States.START)
 
 
     def register_handlers(self):

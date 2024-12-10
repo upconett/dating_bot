@@ -1,14 +1,18 @@
 from logic import CardWriter
 
 from models import Card, Media
-from logic.exceptions import CardNotFound
+from logic.exceptions import CardNotFound, CardAlreadyExists
+
+from sqlalchemy.exc import IntegrityError
 
 
 class DefaultCardWriter(CardWriter):
 
     async def create(self, card: Card):
-        await self._insert_new_card(card)
-        card.id = await self._get_generated_card_id(card)
+        try:
+            await self._insert_new_card(card)
+        except CardAlreadyExists:
+            await self.update(card)
         await self._insert_card_media(card)
 
 
@@ -28,34 +32,26 @@ class DefaultCardWriter(CardWriter):
 
     
     async def _insert_new_card(self, card: Card) -> bool:
-        await self.db.insert(
-            table="cards",
-            data=self._compose_card_dict(card)
-        )
+        try:
+            await self.db.insert(
+                table="cards",
+                data=self._compose_card_dict(card)
+            )
+        except IntegrityError:
+            raise CardAlreadyExists()
 
     
     async def _insert_card_media(self, card: Card) -> bool:
         for media in card.media:
             await self.db.insert(
-                table="media",
+                table="card_media",
                 data=self._compose_media_dict(media, card.id)
             )
-        
-
-    async def _get_generated_card_id(self, card: Card) -> int:
-        result = await self.db.select(
-            "cards",
-            filter_by={"user_id": card.user_id}
-        )
-        if len(result) == 0:
-            raise CardNotFound()
-        card_db = result[0]
-        return card_db.get("id")
-
 
 
     def _compose_card_dict(self, card: Card) -> dict:
         return {
+            "id": card.id,
             "user_id": card.user_id,
             "name": card.name,
             "age": card.age,
