@@ -13,6 +13,6 @@ class Card:
     sex: Sex
     age: int
     city: str
-    interests: str
+    interests: int               # used in binary format (3 = 00011) means that 1st and 2nd interests are chosen
     description: Optional[str]
     media: List[Media]

@@ -57,7 +57,7 @@ class DefaultCardWriter(CardWriter):
             "age": card.age,
             "city": card.city,
             "sex": card.sex.value,
-            "interests": card.interests,
+            "interests": int(card.interests),
             "description": card.description
         }
 

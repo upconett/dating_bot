@@ -41,9 +41,13 @@ class DefaultUserLoader(UserLoader):
 
     
     async def _load_from_db_by_tg_id(self, tg_id: int) -> User:
-        db_result = await self.db.select("users", filter_by={"tg_id": tg_id})
-        if len(db_result) == 0: raise UserNotFound()
-        data_from_db = db_result[0]
+        db_result_user = await self.db.select("users", filter_by={"tg_id": tg_id})
+        db_result_settings = await self.db.select("settings", filter_by={"user_id": tg_id})
+        if len(db_result_user) == 0: raise UserNotFound()
+        data_from_db = db_result_user[0]
+        print(db_result_settings)
+        if db_result_settings:
+            data_from_db['settings'] = db_result_settings[0]
         return UserAdapter.from_dict(data_from_db)
 
 
@@ -51,6 +55,10 @@ class DefaultUserLoader(UserLoader):
         db_result = await self.db.select("users", filter_by={"id": internal_id})
         if len(db_result) == 0: raise UserNotFound()
         data_from_db = db_result[0]
+        db_result_settings = await self.db.select("settings", filter_by={"user_id": data_from_db.get("id")})
+        print(db_result_settings)
+        if db_result_settings:
+            data_from_db['settings'] = db_result_settings[0]
         return UserAdapter.from_dict(data_from_db)
 
     

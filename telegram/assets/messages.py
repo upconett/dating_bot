@@ -2,10 +2,11 @@ from typing import List
 from models import Card, Interest
 
 
-def _build_interests(interests_string: str) -> List[str]:
+def _build_interests(interests: int) -> List[str]:
     result = []
-    for i in range(len(interests_string)):
-        if interests_string[i] == '1':
+    bin_interests = (bin(interests)[2:])[::-1]
+    for i in range(len(bin_interests)):
+        if bin_interests[i] == '1':
             result.append(Interest.from_value(i).russian_name)
     return result
 

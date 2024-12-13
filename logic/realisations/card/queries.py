@@ -1,0 +1,156 @@
+FULL_RECOMENDATION = """
+WITH sex_filtered AS (
+    SELECT *
+    FROM cards
+    WHERE sex = {seek_sex}
+),
+city_filtered AS (
+    SELECT *
+    FROM sex_filtered
+    WHERE city = '{target_city}'
+),
+age_filtered AS (
+    SELECT *
+    FROM city_filtered
+    WHERE age BETWEEN {seek_age_from} AND {seek_age_to}
+),
+interests_filtered AS (
+    SELECT *,
+        (interests & {interests}) AS common_bits,
+        LENGTH(REPLACE(HEX((interests & {interests})), '0', '')) AS common_count
+    FROM age_filtered
+    WHERE (interests & {interests}) != 0
+    ORDER BY common_count DESC
+),
+unseen_filtered AS (
+    SELECT c.id AS seen
+    FROM interests_filtered c
+    CROSS JOIN seen_cards sc
+    WHERE sc.user_id = {current_user_id}
+    AND SUBSTR(sc.bit_string, c.id, 1) = '0'
+)
+SELECT * 
+FROM unseen_filtered
+WHERE seen != {current_id}
+LIMIT {limit};
+"""
+
+RECOMENDATION_NO_CITY = """
+WITH sex_filtered AS (
+    SELECT *
+    FROM cards
+    WHERE sex = {seek_sex}
+),
+age_filtered AS (
+    SELECT *
+    FROM sex_filtered
+    WHERE age BETWEEN {seek_age_from} AND {seek_age_to}
+),
+interests_filtered AS (
+    SELECT *,
+        (interests & {interests}) AS common_bits,
+        LENGTH(REPLACE(HEX((interests & {interests})), '0', '')) AS common_count
+    FROM age_filtered
+    WHERE (interests & {interests}) != 0
+    ORDER BY common_count DESC
+),
+unseen_filtered AS (
+    SELECT c.id AS seen
+    FROM interests_filtered c
+    CROSS JOIN seen_cards sc
+    WHERE sc.user_id = {current_user_id}
+    AND SUBSTR(sc.bit_string, c.id, 1) = '0'
+)
+SELECT * 
+FROM unseen_filtered
+WHERE seen != {current_id}
+LIMIT {limit};
+"""
+
+RECOMENDATION_NO_AGE = """
+WITH sex_filtered AS (
+    SELECT *
+    FROM cards
+    WHERE sex = {seek_sex}
+),
+city_filtered AS (
+    SELECT *
+    FROM sex_filtered
+    WHERE city = '{target_city}'
+),
+interests_filtered AS (
+    SELECT *,
+        (interests & {interests}) AS common_bits,
+        LENGTH(REPLACE(HEX((interests & {interests})), '0', '')) AS common_count
+    FROM city_filtered
+    WHERE (interests & {interests}) != 0
+    ORDER BY common_count DESC
+),
+unseen_filtered AS (
+    SELECT c.id AS seen
+    FROM interests_filtered c
+    CROSS JOIN seen_cards sc
+    WHERE sc.user_id = {current_user_id}
+    AND SUBSTR(sc.bit_string, c.id, 1) = '0'
+)
+SELECT * 
+FROM unseen_filtered
+WHERE seen != {current_id}
+LIMIT {limit};
+"""
+
+RECOMENDATION_NO_CITY_AGE = """
+WITH sex_filtered AS (
+    SELECT *
+    FROM cards
+    WHERE sex = {seek_sex}
+),
+interests_filtered AS (
+    SELECT *,
+        (interests & {interests}) AS common_bits,
+        LENGTH(REPLACE(HEX((interests & {interests})), '0', '')) AS common_count
+    FROM sex_filtered
+    WHERE (interests & {interests}) != 0
+    ORDER BY common_count DESC
+),
+unseen_filtered AS (
+    SELECT c.id AS seen
+    FROM interests_filtered c
+    CROSS JOIN seen_cards sc
+    WHERE sc.user_id = {current_user_id}
+    AND SUBSTR(sc.bit_string, c.id, 1) = '0'
+)
+SELECT * 
+FROM unseen_filtered
+WHERE seen != {current_id}
+LIMIT {limit};
+"""
+
+RECOMENDATION_NO_INTERESTS = """
+WITH sex_filtered AS (
+    SELECT *
+    FROM cards
+    WHERE sex = {seek_sex}
+),
+city_filtered AS (
+    SELECT *
+    FROM sex_filtered
+    WHERE city = '{target_city}'
+),
+age_filtered AS (
+    SELECT *
+    FROM city_filtered
+    WHERE age BETWEEN {seek_age_from} AND {seek_age_to}
+),
+unseen_filtered AS (
+    SELECT c.id AS seen
+    FROM age_filtered c
+    CROSS JOIN seen_cards sc
+    WHERE sc.user_id = {current_user_id}
+    AND SUBSTR(sc.bit_string, c.id, 1) = '0'
+)
+SELECT * 
+FROM unseen_filtered
+WHERE seen != {current_id}
+LIMIT {limit};
+"""

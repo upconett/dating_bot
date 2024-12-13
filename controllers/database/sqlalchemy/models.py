@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from controllers.database.sqlalchemy.Base import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Text
 
 
 class User(Base):
@@ -38,7 +38,7 @@ class Card(Base):
     age: Mapped[int] = mapped_column(nullable=False)
     city: Mapped[str] = mapped_column(nullable=False)
     sex: Mapped[bool] = mapped_column(nullable=False)
-    interests: Mapped[str] = mapped_column(nullable=False, default="0"*20)
+    interests: Mapped[int] = mapped_column(nullable=False)
     description: Mapped[Optional[str]] = mapped_column()
 
     media: Mapped[List["Media"]] = relationship(back_populates="card")
@@ -82,3 +82,10 @@ class Transaction(Base):
     product: Mapped[str] = mapped_column(nullable=False)
 
     user: Mapped["User"] = relationship()
+
+
+class SeenCards(Base):
+    __tablename__ = "seen_cards"
+    
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.tg_id"), primary_key=True)
+    bit_string: Mapped[str] = mapped_column(Text, nullable=False)

@@ -171,10 +171,10 @@ class CardCreationHandler(UpdateHandler):
     #region UtilityMethods
 
 
-    async def _create_card(self, state: FSMContext, user_id: int) -> Card:
+    async def _create_card(self, state: FSMContext, user: User) -> Card:
         state_data = await state.get_data()
-        raw_card = self._card_from_state_data(state_data, user_id)
-        card = await self.card_service.create(raw_card)
+        raw_card = self._card_from_state_data(state_data, user)
+        card = await self.card_service.create(raw_card, user)
         return card
 
 
@@ -187,7 +187,7 @@ class CardCreationHandler(UpdateHandler):
             sex=Sex(data.get("sex")),
             age=data.get("age"),
             city=data.get("city"),
-            interests=self._interests_to_string(data.get("interests")),
+            interests=self._interests_to_int(data.get("interests")),
             description=data.get("description"),
             media=data.get("media")
         )
@@ -198,13 +198,13 @@ class CardCreationHandler(UpdateHandler):
         )
 
     
-    def _interests_to_string(self, interests: List[int]) -> str: # TODO : REMOVE, should be inside CardService
+    def _interests_to_int(self, interests: List[int]) -> str: # TODO : REMOVE, should be inside CardService
         arr = [0] * len(Interest)
         for interest in interests:
             arr[interest] = 1
         result = ""
-        for a in arr: result += str(a)
-        return result
+        for a in arr: result = str(a) + result
+        return int(result, 2)
 
 
     async def _remove_finish_button(self, message: AIOgramMessage):
@@ -317,7 +317,7 @@ class CardCreationHandler(UpdateHandler):
             sex=Sex(state_data.get("sex")),
             age=state_data.get("age"),
             city=state_data.get("city"),
-            interests=self._interests_to_string(state_data.get("interests")),
+            interests=self._interests_to_int(state_data.get("interests")),
             description=state_data.get("description"),
             media=state_data.get("media")
         )

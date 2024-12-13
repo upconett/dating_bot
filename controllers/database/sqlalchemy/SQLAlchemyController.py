@@ -1,17 +1,19 @@
 from typing import Any, List, Dict
-from sqlalchemy import create_engine
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker, AsyncAttrs
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
+
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.inspection import inspect
 from sqlalchemy.future import select as orm_select
-from sqlalchemy import update as orm_update, delete as orm_delete, Result
-from sqlalchemy import Column, DateTime, func
+from sqlalchemy import (
+    update as orm_update,
+    delete as orm_delete,
+    text,
+    Result
+)
 
 from controllers.database import DBController
 
 from .Base import Base
 from .models import *
-
 
 
 class SQLAlchemyController(DBController):
@@ -87,9 +89,9 @@ class SQLAlchemyController(DBController):
 
     async def custom_query(self, query: str) -> List[Dict] | bool:
         async with self.async_session() as session:
-            result: Result = await session.execute(query)
+            result: Result = await session.execute(text(query))
             try:
-                return [dict(row) for row in result.fetchall()]
+                return [row._tuple() for row in result.fetchall()]
             except Exception:
                 await session.commit()
                 return True

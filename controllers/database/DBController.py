@@ -20,5 +20,5 @@ class DBController(ABC):
         ...
 
     @abstractmethod
-    async def custom_query(self, table: str, query: str) -> List[Dict] | bool:
+    async def custom_query(self, query: str) -> List[Dict] | bool:
         ...

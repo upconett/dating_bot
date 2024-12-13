@@ -1,17 +1,32 @@
-from logic import CardWriter
-from models import Card, Sex
+from logic import CardWriter, CardLoader
 
+from models import Card, User, Sex
+
+from logic.exceptions import CardNotFound
 
 class CardService:
     card_writer: CardWriter
+    card_loader: CardLoader
 
 
-    def __init__(self, card_writer: CardWriter):
+    def __init__(
+            self,
+            card_writer: CardWriter, 
+            card_loader: CardLoader
+        ):
         self.card_writer = card_writer
+        self.card_loader = card_loader
 
 
-    async def create(self, card: Card) -> Card:
+    async def create(self, card: Card, user: User) -> Card:
+        card.id = user.id
+        card.user_id = user.tg_id
         await self.card_writer.create(card)
         return card
 
-    
+
+    async def get_recomended(self, user: User) -> Card:
+        return await self.card_loader.get_recomended(user)
+
+    async def update_recomendations(self, user: User):
+        await self.card_loader.make_all_cards_as_unseen(user)

@@ -16,7 +16,7 @@ class DictCacheController(CacheController):
 
     async def get_inner(self, key: str, inner_key: str) -> Any:
         data = self.cache.get(key)
-        if data is dict:
+        if data.__class__ == dict:
             return data.get(inner_key)
         if data is None: raise NoDataInCache()
 
@@ -27,8 +27,7 @@ class DictCacheController(CacheController):
     
     async def set_inner(self, key: str, inner_key: str, value: Any) -> bool:
         data = self.cache.get(key)
-        if data is None:
-            return False
+        if data is None: data = {}
         data[inner_key] = value
         self.cache[key] = data
         return True

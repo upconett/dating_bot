@@ -18,3 +18,5 @@ class States(StatesGroup):
     REQUEST_AGE_SEEK = State()
 
     TO_RECOMENDATIONS = State()
+
+    RECOMENDATIONS = State()

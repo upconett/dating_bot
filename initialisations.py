@@ -4,7 +4,7 @@ from controllers import DBController, CacheController
 from controllers.database import SQLiteController
 from controllers.cache import DictCacheController
 
-from logic.realisations.card import DefaultCardWriter
+from logic.realisations.card import DefaultCardWriter, DefaultCardLoader
 from logic.realisations.user import DefaultUserLoader, DefaultUserWriter
 
 from services import UserService, CardService
@@ -13,7 +13,8 @@ from telegram import UpdateHandler, UpdateHandlerConfig
 from telegram.sections import (
     IdleHandler,
     CardCreationHandler,
-    SettingsHandler
+    SettingsHandler,
+    RecomendationHandler
 )
 from telegram import NotificationManager
 from telegram import F, filters
@@ -71,12 +72,28 @@ def initialise_user_service(db_controller: DBController, cache_controller: Cache
 
 def initialise_card_service(db_controller: DBController, cache_controller: CacheController) -> CacheController:
     card_writer = DefaultCardWriter(db_controller, cache_controller)
-    # card_loader = DefaultCardLoader(db_controller, cache_controller) # TODO : implement card_loader
+    card_loader = DefaultCardLoader(db_controller, cache_controller) # TODO : implement card_loader
     # card_validator = DefaultCardValidator() # TODO : implement card_validator
 
     return CardService(
-        card_writer=card_writer # TODO : implement card_loader, card_validator
+        card_writer=card_writer, # TODO : implement card_loader, card_validator
+        card_loader=card_loader
     )
+
+
+def init_recomendation_handler(
+        user_service: UserService,
+        card_service: CardService
+    ) -> RecomendationHandler:
+    return RecomendationHandler(
+        UpdateHandlerConfig(
+            router_name="recomendations",
+            message_middleware=DefaultMiddleware(user_service),
+        ),
+        user_service=user_service,
+        card_service=card_service
+    )
+
 
 
 def initialise_handlers() -> List[UpdateHandler]:
@@ -92,5 +109,6 @@ def initialise_handlers() -> List[UpdateHandler]:
     handlers.append(init_idle_handler(user_service))
     handlers.append(init_card_creation_handler(user_service, card_service))
     handlers.append(init_settings_handler(user_service))
+    handlers.append(init_recomendation_handler(user_service, card_service))
 
     return handlers
