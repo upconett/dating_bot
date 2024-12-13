@@ -21,6 +21,6 @@ class CardAdapter:
 
     @staticmethod
     def __media_from_dict(media_data: List[Dict]) -> List[Media]:
-        return [Media(d.get("type"), d.get("file_id")) for d in media_data]
+        return [Media(d.get("type"), d.get("id")) for d in media_data]
 
     

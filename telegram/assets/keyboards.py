@@ -160,3 +160,8 @@ continue_recomendation = ReplyKeyboard(
     keyboard=[[ReplyButton(text="Смотреть анкеты")]],
     resize_keyboard=True
 )
+
+to_recomendations = ReplyKeyboard(
+    keyboard=[[ReplyButton(text="Начать общаться!")]],
+    resize_keyboard=True
+)

@@ -30,3 +30,10 @@ class CardService:
 
     async def update_recomendations(self, user: User):
         await self.card_loader.make_all_cards_as_unseen(user)
+
+    async def user_has_card(self, user: User) -> bool:
+        try:
+            await self.card_loader.get_by_id(user.id)
+            return True
+        except CardNotFound:
+            return False

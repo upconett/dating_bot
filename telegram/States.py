@@ -20,3 +20,5 @@ class States(StatesGroup):
     TO_RECOMENDATIONS = State()
 
     RECOMENDATIONS = State()
+
+    IDLE = State()

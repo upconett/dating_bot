@@ -22,7 +22,8 @@ from telegram.utils.middleware import MediaGroupMiddleware, DefaultMiddleware
 
 
 def init_idle_handler(
-        user_service: UserService
+        user_service: UserService,
+        card_service: CardService
     ) -> IdleHandler:
     return IdleHandler(
         UpdateHandlerConfig(
@@ -30,7 +31,8 @@ def init_idle_handler(
             message_filters=[F.text],
             message_middleware=DefaultMiddleware(user_service),
         ),
-        user_service=user_service
+        user_service=user_service,
+        card_service=card_service
     )
 
 
@@ -106,7 +108,7 @@ def initialise_handlers() -> List[UpdateHandler]:
     user_service = initialise_user_service(db_controller, cache_controller)
     card_service = initialise_card_service(db_controller, cache_controller)
 
-    handlers.append(init_idle_handler(user_service))
+    handlers.append(init_idle_handler(user_service, card_service))
     handlers.append(init_card_creation_handler(user_service, card_service))
     handlers.append(init_settings_handler(user_service))
     handlers.append(init_recomendation_handler(user_service, card_service))

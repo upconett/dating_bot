@@ -18,6 +18,10 @@ class DefaultUserWriter(UserWriter):
         UPDATE seen_cards
         SET bit_string = bit_string || '{concat}';
     """
+    GET_USER_ID_QUERY = """
+        SELECT id FROM users
+        WHERE tg_id = {tg_id};
+    """
 
     async def create(self, user: User) -> None:
         bit_string_length = await self.__get_current_bit_string_length()
@@ -46,8 +50,9 @@ class DefaultUserWriter(UserWriter):
                     "seek_age_from": user.settings.seek_age_from,
                     "seek_age_to": user.settings.seek_age_to,
                     "seek_sex": user.settings.seek_sex.value,
-                }   
+                }
             )
+        user.id = await self._get_generated_user_id(user)
         await self.cache.set_data(f"tg_id:{user.tg_id}", UserAdapter.to_dict(user))
         await self.cache.set_data(f"id:{user.id}", user.tg_id)
 
@@ -142,3 +147,12 @@ class DefaultUserWriter(UserWriter):
         await self.db.custom_query(
             self.INCREASE_BITSTRING_QUERY.format(concat="0"*bitstr_len)
         )
+
+    async def _get_generated_user_id(self, user: User) -> int:
+        result = await self.db.custom_query(
+            self.GET_USER_ID_QUERY.format(tg_id=user.tg_id)
+        )
+        if result:
+            return result[0][0]
+        else:
+            return 1

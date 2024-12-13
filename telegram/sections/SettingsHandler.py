@@ -56,7 +56,7 @@ class SettingsHandler(UpdateHandler):
             await self.user_service.update_user(user)
             await message.answer(
                 text=messages.SETTINGS_DONE,
-                # reply_markup=? TODO: needed keyboard button?
+                reply_markup=keyboards.to_recomendations
             )
             await state.set_state(States.TO_RECOMENDATIONS)
         except InvalidAge:

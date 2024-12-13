@@ -154,3 +154,36 @@ FROM unseen_filtered
 WHERE seen != {current_id}
 LIMIT {limit};
 """
+
+RECOMENDATION_BY_SEX = """
+WITH sex_filtered AS (
+    SELECT *
+    FROM cards
+    WHERE sex = {seek_sex}
+),
+unseen_filtered AS (
+    SELECT c.id AS seen
+    FROM sex_filtered c
+    CROSS JOIN seen_cards sc
+    WHERE sc.user_id = {current_user_id}
+    AND SUBSTR(sc.bit_string, c.id, 1) = '0'
+)
+SELECT * 
+FROM unseen_filtered
+WHERE seen != {current_id}
+LIMIT {limit};
+"""
+
+RECOMENDATION_UNSEEN = """
+WITH unseen_filtered AS (
+    SELECT c.id AS seen
+    FROM cards c
+    CROSS JOIN seen_cards sc
+    WHERE sc.user_id = {current_user_id}
+    AND SUBSTR(sc.bit_string, c.id, 1) = '0'
+)
+SELECT * 
+FROM unseen_filtered
+WHERE seen != {current_id}
+LIMIT {limit};
+"""
