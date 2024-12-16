@@ -22,3 +22,5 @@ class States(StatesGroup):
     RECOMENDATIONS = State()
 
     IDLE = State()
+
+    MESSAGE_CARD = State()

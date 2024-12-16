@@ -1,7 +1,7 @@
 import asyncio
 
 from telegram import Config
-from telegram import AIOgramBot, AIOgramDispatcher
+from telegram import AIOgramBot, AIOgramDispatcher, DefaultBotProperties
 from telegram import MasterHandler
 
 
@@ -11,10 +11,15 @@ from initialisations import initialise_handlers
 async def main():
     config = Config(".env")
 
-    bot = AIOgramBot(token=config.token)
+    bot = AIOgramBot(
+        token=config.token,
+        default=DefaultBotProperties(
+            parse_mode="HTML"
+        )
+    )
     dispatcher = AIOgramDispatcher()
 
-    update_handlers = initialise_handlers()
+    update_handlers = initialise_handlers(bot)
 
     master_handler = MasterHandler(
         bot=bot,

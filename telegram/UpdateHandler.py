@@ -11,6 +11,7 @@ class UpdateHandler(ABC):
     def __init__(self, config: UpdateHandlerConfig):
         self.router=AIOgramRouter(name=config.router_name)
         self.router.message.middleware(config.message_middleware)
+        self.router.callback_query.middleware(config.message_middleware)
         self.__assign_filters(
             config.message_filters,
             config.callback_filters

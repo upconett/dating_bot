@@ -1,5 +1,5 @@
 from typing import List
-from models import Card, Interest
+from models import Card, Interest, Sex, User
 
 
 def _build_interests(interests: int) -> List[str]:
@@ -48,7 +48,11 @@ def card_info(card: Card) -> str:
     description_line = "{description}".format(**card.__dict__)
 
     interests = _build_interests(card.interests)
-    interests_line = "{interests}".format(interests=" ".join(interests))
+    interests_line = ""
+    for i in range(len(interests)):
+        interests_line += f"{interests[i]} "
+        if (i+1) % 2 == 0:
+            interests_line += "\n"
 
     if card.description:
         return (
@@ -56,13 +60,13 @@ def card_info(card: Card) -> str:
             "\n"
             f"{description_line}\n"
             "\n"
-            f"{interests_line}"
+            f"<b>{interests_line}</b>"
         )
     else:
         return (
             f"{first_line}\n"
             "\n"
-            f"{interests_line}"
+            f"<b>{interests_line}</b>"
         )
 
 
@@ -152,4 +156,43 @@ CLICK_DONE_INTERESTS = (
 
 IDLE_MENU = (
     "Подождем пока твою анкету кто-то увидит"
+)
+
+YOU_BEEN_LIKED = (
+    "Кому-то понравилась твоя анкета!"
+)
+
+def response_like(user: User, card: Card) -> str:
+    match (card.sex):
+        case Sex.MALE: answered = "ответил"
+        case Sex.FEMALE: answered = "ответила"
+        case _: answered = "ответил/а"
+    user_link = f'<a href="tg://user?id={user.tg_id}">{user.first_name}</a>'
+    user_username = f'(@{user.username})' if user.username else ""
+    return (
+        f"{user_link} {user_username} {answered} тебе!\n"
+        "Приятного общения\n"
+        "*если ссылки на пользователя нет, значит его настройки приватности не позволяют её получить :("
+    )
+
+def received_message(message: str) -> str:
+    return (
+        "Кому-то понравилась твоя анкета!\n"
+        f"💬 Сообщение: {message}"
+    )
+
+def link_to_user(user: User) -> str:
+    user_username = f'(@{user.username})' if user.username else ""
+    return (
+        "\n\nСупер! Вот контакт: "
+        f'<a href="tg://user?id={user.tg_id}">{user.first_name}</a> {user_username}'
+    )
+
+def message_card(card: Card) -> str:
+    return (
+        f"Введи сообщение для {card.name}"
+    )
+
+MESSAGE_SENT = (
+    "Сообщение отправлено!"
 )

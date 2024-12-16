@@ -11,6 +11,7 @@ from aiogram.filters import StateFilter
 from aiogram import F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from aiogram.client.default import DefaultBotProperties
 
 from aiogram.types import (
     Chat as AIOgramChat,

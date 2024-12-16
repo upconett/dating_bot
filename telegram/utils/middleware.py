@@ -18,7 +18,7 @@ class DefaultMiddleware(BaseMiddleware):
                 event: AIOgramMessage | AIOgramQuery,
                 data: Dict[str, Any]
         ) -> Any:
-            user = await self.user_service.get_user(event.chat)
+            user = await self.user_service.get_by_tg_id(event.from_user.id)
             data['user'] = user
             return await handler(event, data)
 
@@ -34,10 +34,13 @@ class MediaGroupMiddleware(BaseMiddleware):
     async def __call__(
         self,
         handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
-        message: AIOgramMessage,
+        event: AIOgramMessage | AIOgramQuery,
         data: Dict[str, Any]
     ) -> Any:
-        data['user'] = await self.user_service.get_user(message.chat)
+        if event.__class__ == AIOgramQuery:
+            return await handler(event, data)
+        message = event
+        data['user'] = await self.user_service.get_by_chat(message.chat)
         if not message.media_group_id:
             data['media_group'] = None
             return await handler(message, data)

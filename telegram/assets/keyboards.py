@@ -60,7 +60,7 @@ def choose_interests(chosen_interests: List[int] = []) -> InlineKeyboard:
     for button in _create_interest_buttons(chosen_interests):
         keyboard.add(button)
     keyboard.add(InlineButton(text="Готово", callback_data="interest_done"))
-    keyboard.adjust(3, 3, 3, 1)
+    keyboard.adjust(3, 3, 3, 3, 1)
     return keyboard.as_markup()
 
 
@@ -138,16 +138,15 @@ card_menu = ReplyKeyboard(
 )
 
 
-response_card = ReplyKeyboard( # TODO : Must be inline?
-    keyboard=[
-        [
-            ReplyButton(text="❤️"),
-            ReplyButton(text="💔")
+def response_card(like_sender_id: int) -> InlineKeyboard:
+    return InlineKeyboard(
+        inline_keyboard=[
+            [
+                InlineButton(text="❤️", callback_data=f"response_like_{like_sender_id}"),
+                InlineButton(text="💔", callback_data=f"response_dislike_{like_sender_id}")
+            ],
         ],
-    ],
-    resize_keyboard=True,
-    one_time_keyboard=True
-)
+    )
 
 
 message_cancel: InlineKeyboard = (

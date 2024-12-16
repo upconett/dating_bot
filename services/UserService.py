@@ -1,7 +1,7 @@
 from logic import UserLoader, UserWriter
 
 from telegram import AIOgramChat
-from models import User, Settings, Sex
+from models import User, Card
 
 from logic.static import UserAdapter
 from logic.exceptions import *
@@ -16,8 +16,16 @@ class UserService:
         self.user_loader = user_loader
         self.user_writer = user_writer
 
+    
+    async def get_by_card(self, card: Card) -> User:
+        return await self.user_loader.get_by_internal_id(card.id)
 
-    async def get_user(self, chat: AIOgramChat) -> User:
+
+    async def get_by_tg_id(self, tg_id: int) -> User:
+        return await self.user_loader.get_by_tg_id(tg_id)
+
+
+    async def get_by_chat(self, chat: AIOgramChat) -> User:
         try:
             return await self.user_loader.get_by_tg_id(chat.id)
         except UserNotFound:

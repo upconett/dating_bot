@@ -4,11 +4,13 @@ from controllers import DBController, CacheController
 from controllers.database import SQLiteController
 from controllers.cache import DictCacheController
 
+from logic import CardLoader
 from logic.realisations.card import DefaultCardWriter, DefaultCardLoader
 from logic.realisations.user import DefaultUserLoader, DefaultUserWriter
 
 from services import UserService, CardService
 
+from telegram import AIOgramBot
 from telegram import UpdateHandler, UpdateHandlerConfig
 from telegram.sections import (
     IdleHandler,
@@ -22,6 +24,7 @@ from telegram.utils.middleware import MediaGroupMiddleware, DefaultMiddleware
 
 
 def init_idle_handler(
+        notification_manager: NotificationManager,
         user_service: UserService,
         card_service: CardService
     ) -> IdleHandler:
@@ -31,6 +34,7 @@ def init_idle_handler(
             message_filters=[F.text],
             message_middleware=DefaultMiddleware(user_service),
         ),
+        notification_manager=notification_manager,
         user_service=user_service,
         card_service=card_service
     )
@@ -72,9 +76,8 @@ def initialise_user_service(db_controller: DBController, cache_controller: Cache
     )
 
 
-def initialise_card_service(db_controller: DBController, cache_controller: CacheController) -> CacheController:
+def initialise_card_service(card_loader: CardLoader, db_controller: DBController, cache_controller: CacheController) -> CacheController:
     card_writer = DefaultCardWriter(db_controller, cache_controller)
-    card_loader = DefaultCardLoader(db_controller, cache_controller) # TODO : implement card_loader
     # card_validator = DefaultCardValidator() # TODO : implement card_validator
 
     return CardService(
@@ -84,6 +87,7 @@ def initialise_card_service(db_controller: DBController, cache_controller: Cache
 
 
 def init_recomendation_handler(
+        notification_manager: NotificationManager,
         user_service: UserService,
         card_service: CardService
     ) -> RecomendationHandler:
@@ -92,25 +96,28 @@ def init_recomendation_handler(
             router_name="recomendations",
             message_middleware=DefaultMiddleware(user_service),
         ),
+        notification_manager=notification_manager,
         user_service=user_service,
         card_service=card_service
     )
 
 
 
-def initialise_handlers() -> List[UpdateHandler]:
+def initialise_handlers(bot: AIOgramBot) -> List[UpdateHandler]:
     handlers = []
 
     db_controller = SQLiteController("test.db")
     cache_controller = DictCacheController()
 
-    notification_manager = NotificationManager()
-    user_service = initialise_user_service(db_controller, cache_controller)
-    card_service = initialise_card_service(db_controller, cache_controller)
+    card_loader = DefaultCardLoader(db_controller, cache_controller)
 
-    handlers.append(init_idle_handler(user_service, card_service))
+    notification_manager = NotificationManager(bot, card_loader)
+    user_service = initialise_user_service(db_controller, cache_controller)
+    card_service = initialise_card_service(card_loader, db_controller, cache_controller)
+
+    handlers.append(init_idle_handler(notification_manager, user_service, card_service))
     handlers.append(init_card_creation_handler(user_service, card_service))
     handlers.append(init_settings_handler(user_service))
-    handlers.append(init_recomendation_handler(user_service, card_service))
+    handlers.append(init_recomendation_handler(notification_manager, user_service, card_service))
 
     return handlers
