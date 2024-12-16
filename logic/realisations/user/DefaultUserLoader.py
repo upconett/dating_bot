@@ -29,6 +29,9 @@ class DefaultUserLoader(UserLoader):
             return user
 
 
+    async def remove_from_cache(self, tg_id: int, internal_id: int):
+        await self.cache.remove_key(f"tg_id:{tg_id}")
+        await self.cache.remove_key(f"internal_id:{internal_id}")
 
         
     async def _load_tg_id_from_cache(self, internal_id: int) -> int:

@@ -11,7 +11,7 @@ from telegram import NotificationManager
 from models import User, Card, Media
 
 from services import UserService, CardService
-from logic.exceptions import CardNotFound
+from logic.exceptions import CardNotFound, InvalidUser
 
 
 class RecomendationHandler(UpdateHandler):
@@ -83,6 +83,14 @@ class RecomendationHandler(UpdateHandler):
     #region private
 
     async def _send_next_recomendation(self, message: AIOgramMessage, state: FSMContext, user: User) -> AIOgramMessage:
+        try:
+            return await self._send_next_recomendation_with_error(message, state, user)
+        except InvalidUser:
+            user = await self.user_service.update_cached(user)
+            print("new user has settings?", user.settings != None)
+            return await self._send_next_recomendation_with_error(message, state, user)
+
+    async def _send_next_recomendation_with_error(self, message: AIOgramMessage, state: FSMContext, user: User) -> AIOgramMessage:
         try:
             card = await self.card_service.get_recomended(user)
             await state.set_state(States.RECOMENDATIONS)

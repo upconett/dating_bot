@@ -26,6 +26,10 @@ class UserLoader(ABC):
     async def get_by_internal_id(self, internal_id: int) -> User:
         ...
 
+    @abstractmethod
+    async def remove_from_cache(self, tg_id: int, internal_id: int):
+        ...
+
     
     async def exists_by_tg_id(self, tg_id: int) -> User:
         try:

@@ -1,3 +1,5 @@
+from typing import List
+
 from logic import CardWriter
 
 from models import Card, Media
@@ -22,6 +24,8 @@ class DefaultCardWriter(CardWriter):
             filter_by={"id": card.id },
             data=self._compose_card_dict(card)
         )
+        await self._delete_card_media(card)
+        await self._insert_card_media(card)
 
 
     async def delete(self, card: Card):
@@ -29,6 +33,15 @@ class DefaultCardWriter(CardWriter):
             table="cards",
             filter_by={"id": card.id }
         )
+        await self._delete_card_media(card)
+
+    
+    async def delete_media(self, media: List[Media]):
+        for m in media:
+            await self.db.delete(
+                table="card_media",
+                filter_by={"id": m.file_id}
+            )
 
     
     async def _insert_new_card(self, card: Card) -> bool:
@@ -40,6 +53,11 @@ class DefaultCardWriter(CardWriter):
         except IntegrityError:
             raise CardAlreadyExists()
 
+    async def _delete_card_media(self, card: Card):
+        await self.db.delete(
+            table="card_media",
+            filter_by={"card_id": card.id}
+        )
     
     async def _insert_card_media(self, card: Card) -> bool:
         for media in card.media:

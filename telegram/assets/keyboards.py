@@ -129,7 +129,7 @@ are_you_sure = ReplyKeyboard(
 
 card_menu = ReplyKeyboard(
     keyboard=[
-        [ReplyButton(text="Смотреть анкеты")],
+        [ReplyButton(text="Вернуться")],
         [ReplyButton(text="Заполнить анкету заного")],
         [ReplyButton(text="Изменить медиа")]
     ],
@@ -162,5 +162,10 @@ continue_recomendation = ReplyKeyboard(
 
 to_recomendations = ReplyKeyboard(
     keyboard=[[ReplyButton(text="Начать общаться!")]],
+    resize_keyboard=True
+)
+
+CHANGE_MEDIA = ReplyKeyboard(
+    keyboard=[[ReplyButton(text="Отмена")]],
     resize_keyboard=True
 )

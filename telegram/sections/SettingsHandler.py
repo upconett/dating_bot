@@ -18,20 +18,24 @@ from services import UserService, CardService
 from models import User, Settings
 
 from telegram.utils.card_creation import *
+from telegram.utils.card import *
 from telegram.utils.exceptions import *
 
 
 class SettingsHandler(UpdateHandler):
     user_service: UserService
+    card_service: CardService
 
 
     def __init__(
             self,
             config: UpdateHandlerConfig,
             user_service: UserService,
+            card_service: CardService
         ):
         super().__init__(config)
         self.user_service = user_service
+        self.card_service = card_service
 
     
     #region Handles
@@ -54,10 +58,20 @@ class SettingsHandler(UpdateHandler):
             await self._save_seek_age(message.text, state)
             user.settings = await self._settings_from_state_data(state)
             await self.user_service.update_user(user)
-            await message.answer(
-                text=messages.SETTINGS_DONE,
-                reply_markup=keyboards.to_recomendations
-            )
+            if await self._is_recreation(state):
+                card = await self.card_service.get_by_user(user)
+                await state.set_state(States.CARD_MENU)
+                await message.answer(
+                    text=messages.YOUR_CARD,
+                    reply_markup=keyboards.card_menu
+                )
+                await send_card(message, card, keyboards.card_menu)
+                return
+            else:
+                await message.answer(
+                    text=messages.SETTINGS_DONE,
+                    reply_markup=keyboards.to_recomendations
+                )
             await state.set_state(States.TO_RECOMENDATIONS)
         except InvalidAge:
             await message.answer(messages.INVALID_SEEK_AGE_FORMAT)
@@ -67,6 +81,13 @@ class SettingsHandler(UpdateHandler):
     
     #region UtilityMethods
 
+
+    async def _is_recreation(self, state: FSMContext) -> bool:
+        data = await state.get_data()
+        recreation = data.get("recreation")
+        if recreation: recreation = True
+        else: recreation = False
+        return recreation
 
     async def _save_sex(self, text: str, state: FSMContext):
         if not valid_sex(text): raise InvalidSex()

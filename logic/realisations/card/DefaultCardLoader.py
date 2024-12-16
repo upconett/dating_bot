@@ -5,7 +5,7 @@ from logic import CardLoader
 from models import Card, Settings, User
 
 from controllers.exceptions import NoDataInCache
-from logic.exceptions import CardNotFound
+from logic.exceptions import CardNotFound, InvalidUser
 
 from logic.static import CardAdapter
 
@@ -29,6 +29,10 @@ class DefaultCardLoader(CardLoader):
             # print("From Cache")
             return card
         except NoDataInCache:
+            if not user.settings:
+                print("User crashed")
+                print(user.__dict__)
+                raise InvalidUser()
             user_card = await self.get_by_id(user.id)
             pool = (
                 await self._get_by_full_recomendation(user, user_card, limit)

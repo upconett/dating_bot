@@ -171,11 +171,25 @@ class CardCreationHandler(UpdateHandler):
     #region UtilityMethods
 
 
+    async def _is_recreation(self, state: FSMContext) -> bool:
+        data = await state.get_data()
+        recreation = data.get("recreation")
+        if recreation: recreation = True
+        else: recreation = False
+        return recreation
+
     async def _create_card(self, state: FSMContext, user: User) -> Card:
         state_data = await state.get_data()
         raw_card = self._card_from_state_data(state_data, user)
-        card = await self.card_service.create(raw_card, user)
-        return card
+        if await self._is_recreation(state):
+            old_card = await self.card_service.get_by_user(user)
+            raw_card.id = old_card.id
+            raw_card.user_id = old_card.user_id
+            new_card = await self.card_service.update_card(raw_card)
+            return new_card
+        else:
+            card = await self.card_service.create(raw_card, user)
+            return card
 
 
     async def _show_created_card(self, message: AIOgramMessage, state: FSMContext):
@@ -252,7 +266,13 @@ class CardCreationHandler(UpdateHandler):
 
         
     async def _empty_state_data(self, state: FSMContext):
-        await state.set_data({})
+        data = await state.get_data()
+        recreation = data.get("recreation")
+        if recreation: recreation = True
+        else: recreation = False
+        await state.set_data({
+            "recreation": recreation
+        })
 
     
     async def _memorise_message(self, message: AIOgramMessage, state: FSMContext):

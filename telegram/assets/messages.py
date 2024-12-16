@@ -196,3 +196,11 @@ def message_card(card: Card) -> str:
 MESSAGE_SENT = (
     "Сообщение отправлено!"
 )
+
+YOUR_CARD = (
+    "Так выглядит твоя анкета"
+)
+
+CHANGE_MEDIA = (
+    "Пришлите до 3 ФОТО или ВИДЕО"
+)

@@ -1,13 +1,15 @@
+from models import User
+
+from services import UserService, CardService
+
 from telegram import AIOgramMessage, AIOgramQuery, filters, F
 from telegram import UpdateHandler, UpdateHandlerConfig
-from telegram import FSMContext, States
+from telegram import FSMContext, States, StateFilter
 
 from telegram import NotificationManager
 from telegram.assets import messages, keyboards
 
-from models import User
-
-from services import UserService, CardService
+from telegram.utils.card import *
 
 
 class IdleHandler(UpdateHandler):
@@ -45,7 +47,13 @@ class IdleHandler(UpdateHandler):
 
         
     async def my_card(self, message: AIOgramMessage, state: FSMContext, user: User):
-        ...
+        await state.set_state(States.CARD_MENU)
+        card = await self.card_service.get_by_user(user)
+        await message.answer(
+            text=messages.YOUR_CARD,
+            reply_markup=keyboards.card_menu
+        )
+        await send_card(message, card, keyboards.card_menu)
 
 
     async def response_like(self, query: AIOgramQuery, state: FSMContext, user: User):
@@ -68,5 +76,6 @@ class IdleHandler(UpdateHandler):
 
     def register_handlers(self):
         self.router.message.register(self.on_start, filters.CommandStart())
+        self.router.message.register(self.my_card, F.text == "Моя анкета", StateFilter(States.IDLE))
         self.router.callback_query.register(self.response_like, F.data.startswith("response_like_"))
         self.router.callback_query.register(self.response_dislike, F.data.startswith("response_dislike_"))
