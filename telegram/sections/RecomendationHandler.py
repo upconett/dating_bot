@@ -43,10 +43,11 @@ class RecomendationHandler(UpdateHandler):
         await self._send_next_recomendation(message, state, user)
 
     async def go_idle(self, message: AIOgramMessage, state: FSMContext, user: User):
+        card = await self.card_service.get_by_user(user)
         await state.set_state(States.IDLE)
         await message.answer(
             text=messages.IDLE_MENU,
-            reply_markup=keyboards.idle_menu
+            reply_markup=keyboards.idle_menu(card)
         )
 
     async def like_card(self, message: AIOgramMessage, state: FSMContext, user: User):

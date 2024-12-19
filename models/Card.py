@@ -7,6 +7,7 @@ from models import Sex, Media
 
 @dataclass
 class Card:
+    active: bool
     id: int
     user_id: int
     name: str

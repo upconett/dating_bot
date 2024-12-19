@@ -4,7 +4,7 @@ from telegram import InlineKeyboard, ReplyKeyboard, ReplyKeyboardRemove
 from telegram import InlineButton, ReplyButton
 from telegram import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
-from models import Interest
+from models import Interest, Card
 
 
 empty = ReplyKeyboardRemove()
@@ -104,15 +104,20 @@ recomended_card = ReplyKeyboard(
 )
 
 
-idle_menu = ReplyKeyboard(
-    keyboard=[
-        [ReplyButton(text="Смотреть анкеты")],
-        [ReplyButton(text="Моя анкета")],
-        [ReplyButton(text="Отключить анкету")]
-    ],
-    resize_keyboard=True,
-    one_time_keyboard=True
-)
+def idle_menu(card: Card) -> ReplyKeyboard:
+    toggle_card_text = (
+        "Отключить анкету" if card.active
+        else "Включить анкету"
+    )
+    return ReplyKeyboard(
+        keyboard=[
+            [ReplyButton(text="Смотреть анкеты")],
+            [ReplyButton(text="Моя анкета")],
+            [ReplyButton(text=toggle_card_text)]
+        ],
+        resize_keyboard=True,
+        one_time_keyboard=True
+    )
 
 
 are_you_sure = ReplyKeyboard(

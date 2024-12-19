@@ -32,6 +32,7 @@ class Settings(Base):
 class Card(Base):
     __tablename__ = "cards"
 
+    active: Mapped[bool] = mapped_column(nullable=False, default=True)
     id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
     user_id: Mapped[int] = mapped_column(nullable=False)
     name: Mapped[str] = mapped_column(nullable=False)

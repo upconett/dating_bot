@@ -8,6 +8,7 @@ class CardAdapter:
     @staticmethod
     def from_dict(data: Dict, media_data: List[Dict]) -> Card:
         return Card(
+            active=data.get("active") or True,
             id=data.get("id"),
             user_id=data.get("user_id"),
             name=data.get("name"),

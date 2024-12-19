@@ -24,6 +24,9 @@ class States(StatesGroup):
     IDLE = State()
     CARD_MENU = State()
 
+    ENSURE_DISABLING = State()
+    ENSURE_ENABLING = State()
+
     CHANGE_MEDIA = State()
 
     MESSAGE_CARD = State()

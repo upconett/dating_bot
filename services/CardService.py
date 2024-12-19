@@ -44,3 +44,13 @@ class CardService:
             return True
         except CardNotFound:
             return False
+
+    async def enable_card(self, card: Card) -> Card:
+        card.active = True
+        await self.card_writer.update(card)
+        return card
+
+    async def disable_card(self, card: Card) -> Card:
+        card.active = False
+        await self.card_writer.update(card)
+        return card

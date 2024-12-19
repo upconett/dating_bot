@@ -18,7 +18,10 @@ class DefaultMiddleware(BaseMiddleware):
                 event: AIOgramMessage | AIOgramQuery,
                 data: Dict[str, Any]
         ) -> Any:
-            user = await self.user_service.get_by_tg_id(event.from_user.id)
+            if hasattr(event, "chat"):
+                user = await self.user_service.get_by_chat(event.chat)
+            else:
+                user = await self.user_service.get_by_tg_id(event.from_user.id)
             data['user'] = user
             return await handler(event, data)
 

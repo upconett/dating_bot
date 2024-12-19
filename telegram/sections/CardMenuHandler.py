@@ -33,9 +33,10 @@ class CardMenuHandler(UpdateHandler):
 
     async def go_back(self, message: AIOgramMessage, state: FSMContext, user: User):
         await state.set_state(States.IDLE)
+        card = await self.card_service.get_by_user(user)
         await message.answer(
             text=messages.IDLE_MENU,
-            reply_markup=keyboards.idle_menu
+            reply_markup=keyboards.idle_menu(card)
         )
 
     async def change_media_start(self, message: AIOgramMessage, state: FSMContext, user: User):

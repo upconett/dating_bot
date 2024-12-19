@@ -1,7 +1,12 @@
 FULL_RECOMENDATION = """
-WITH sex_filtered AS (
+WITH active_cads AS (
     SELECT *
-    FROM cards
+    from cards
+    where active = 1
+),
+sex_filtered AS (
+    SELECT *
+    FROM active_cards
     WHERE sex = {seek_sex}
 ),
 city_filtered AS (
@@ -36,9 +41,14 @@ LIMIT {limit};
 """
 
 RECOMENDATION_NO_CITY = """
-WITH sex_filtered AS (
+WITH active_cads AS (
     SELECT *
-    FROM cards
+    from cards
+    where active = 1
+),
+sex_filtered AS (
+    SELECT *
+    FROM active_cards
     WHERE sex = {seek_sex}
 ),
 age_filtered AS (
@@ -68,9 +78,14 @@ LIMIT {limit};
 """
 
 RECOMENDATION_NO_AGE = """
-WITH sex_filtered AS (
+WITH active_cads AS (
     SELECT *
-    FROM cards
+    from cards
+    where active = 1
+),
+sex_filtered AS (
+    SELECT *
+    FROM active_cards
     WHERE sex = {seek_sex}
 ),
 city_filtered AS (
@@ -100,9 +115,14 @@ LIMIT {limit};
 """
 
 RECOMENDATION_NO_CITY_AGE = """
-WITH sex_filtered AS (
+WITH active_cads AS (
     SELECT *
-    FROM cards
+    from cards
+    where active = 1
+),
+sex_filtered AS (
+    SELECT *
+    FROM active_cards
     WHERE sex = {seek_sex}
 ),
 interests_filtered AS (
@@ -127,9 +147,14 @@ LIMIT {limit};
 """
 
 RECOMENDATION_NO_INTERESTS = """
-WITH sex_filtered AS (
+WITH active_cads AS (
     SELECT *
-    FROM cards
+    from cards
+    where active = 1
+),
+sex_filtered AS (
+    SELECT *
+    FROM active_cards
     WHERE sex = {seek_sex}
 ),
 city_filtered AS (
@@ -156,9 +181,14 @@ LIMIT {limit};
 """
 
 RECOMENDATION_BY_SEX = """
-WITH sex_filtered AS (
+WITH active_cads AS (
     SELECT *
-    FROM cards
+    from cards
+    where active = 1
+),
+sex_filtered AS (
+    SELECT *
+    FROM active_cards
     WHERE sex = {seek_sex}
 ),
 unseen_filtered AS (
@@ -175,9 +205,14 @@ LIMIT {limit};
 """
 
 RECOMENDATION_UNSEEN = """
-WITH unseen_filtered AS (
+WITH active_cads AS (
+    SELECT *
+    from cards
+    where active = 1
+),
+unseen_filtered AS (
     SELECT c.id AS seen
-    FROM cards c
+    FROM active_cards c
     CROSS JOIN seen_cards sc
     WHERE sc.user_id = {current_user_id}
     AND SUBSTR(sc.bit_string, c.id, 1) = '0'

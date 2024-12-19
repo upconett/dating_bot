@@ -126,16 +126,21 @@ class CardCreationHandler(UpdateHandler):
 
     
     async def step_description_to_approve(self, message: AIOgramMessage, state: FSMContext):
-        await self._save_description(message.text, is_empty=False, state=state)
-        memorised_message = await self._get_memorised_message(state)
-        if memorised_message:
-            await self._remove_finish_button(memorised_message)
-        await self._show_created_card(message, state)
-        await message.answer(
-            text=messages.CARD_DONE,
-            reply_markup=keyboards.card_creation_done
-        )
-        await state.set_state(States.CARD_APPROVE)
+        try:
+            await self._save_description(message.text, is_empty=False, state=state)
+            memorised_message = await self._get_memorised_message(state)
+            if memorised_message:
+                await self._remove_finish_button(memorised_message)
+            await self._show_created_card(message, state)
+            await message.answer(
+                text=messages.CARD_DONE,
+                reply_markup=keyboards.card_creation_done
+            )
+            await state.set_state(States.CARD_APPROVE)
+        except InvalidDescription:
+            await message.answer(
+                text=f"Слишком длинный текст, {len(message.text)} символов"       
+            )
 
     
     async def step_empty_description_to_approve(self, query: AIOgramQuery, state: FSMContext):

@@ -22,12 +22,22 @@ class DefaultCardLoader(CardLoader):
                 f"tg_id:{user.tg_id}", "recomendation_pool"
             )
             if not pool: raise NoDataInCache()
+
             card_id = pool.pop(0)
+            card = await self.get_by_id(card_id)
+
+            while not card.active and len(pool) > 0:
+                card_id = pool.pop(0)
+                card = await self.get_by_id(card_id)
+
             await self.cache.set_inner(f"tg_id:{user.tg_id}", "recomendation_pool", pool)
 
-            card = await self.get_by_id(card_id)
-            # print("From Cache")
+            if not card.active:
+                raise NoDataInCache()
+
+            print("From Cache")
             return card
+
         except NoDataInCache:
             if not user.settings:
                 print("User crashed")
@@ -49,7 +59,8 @@ class DefaultCardLoader(CardLoader):
             card_id = pool.pop(0)
             await self.cache.set_inner(f"tg_id:{user.tg_id}", "recomendation_pool", pool)
             card = await self.get_by_id(card_id)
-            # print("From DB")
+
+            print("From DB")
             return card
             
 
