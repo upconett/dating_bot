@@ -20,7 +20,6 @@ class UserLoader(ABC):
     @abstractmethod
     async def get_by_tg_id(self, tg_id: int) -> User:
         ...
-
     
     @abstractmethod
     async def get_by_internal_id(self, internal_id: int) -> User:
@@ -28,6 +27,30 @@ class UserLoader(ABC):
 
     @abstractmethod
     async def remove_from_cache(self, tg_id: int, internal_id: int):
+        ...
+
+    @abstractmethod
+    async def count_users(self) -> int:
+        ...
+
+    @abstractmethod
+    async def count_active_users(self) -> int:
+        ...
+
+    @abstractmethod
+    async def count_with_at_least_1_like(self) -> int:
+        ...
+
+    @abstractmethod
+    async def count_with_at_least_1_message(self) -> int:
+        ...
+
+    @abstractmethod
+    async def get_total_likes_count(self) -> int:
+        ...
+
+    @abstractmethod
+    async def get_total_messages_count(self) -> int:
         ...
 
     

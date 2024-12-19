@@ -34,6 +34,63 @@ class DefaultUserLoader(UserLoader):
         await self.cache.remove_key(f"internal_id:{internal_id}")
 
         
+    async def count_users(self) -> int:
+        result = await self.db.custom_query("select count(id) from users;")
+        if result:
+            return result[0][0]
+        else:
+            print("No result in count_users")
+            return 0
+
+    async def count_active_users(self) -> int:
+        result = await self.db.custom_query("select count(id) from users where active = 1;")
+        if result:
+            return result[0][0]
+        else:
+            print("No result in count_active_users")
+            return 0
+
+    async def count_with_at_least_1_like(self) -> int:
+        result = await self.db.custom_query(
+            "select count(id) from users where liked_today > 0;"
+        )
+        if result:
+            return result[0][0]
+        else:
+            print("No result in count_with_at_least_1_like")
+            return 0
+
+    async def count_with_at_least_1_message(self) -> int:
+        result = await self.db.custom_query(
+            "select count(id) from users where messaged_today > 0;"
+        )
+        if result:
+            return result[0][0]
+        else:
+            print("No result in count_with_at_least_1_message")
+            return 0
+
+    async def get_total_likes_count(self) -> int:
+        result = await self.db.custom_query(
+            "select sum(liked_today) from users;"
+        )
+        if result:
+            return result[0][0]
+        else:
+            print("No result in get_total_likes_count")
+            return 0
+
+    async def get_total_messages_count(self) -> int:
+        result = await self.db.custom_query(
+            "select sum(messaged_today) from users;"
+        )
+        if result:
+            return result[0][0]
+        else:
+            print("No result in get_total_messages_count")
+            return 0
+
+        
     async def _load_tg_id_from_cache(self, internal_id: int) -> int:
         return await self.cache.get_data(f"id:{internal_id}")
 

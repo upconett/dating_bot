@@ -24,3 +24,11 @@ class CardLoader(ABC):
     @abstractmethod
     async def make_all_cards_as_unseen(self, user: User) -> None:
         ...
+
+    @abstractmethod
+    async def count_cards(self) -> int:
+        ...
+
+    @abstractmethod
+    async def count_male(self) -> int:
+        ...

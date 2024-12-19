@@ -102,6 +102,23 @@ class DefaultCardLoader(CardLoader):
         )
 
 
+    async def count_cards(self):
+        result = await self.db.custom_query("select count(id) from cards;")
+        if result:
+            return result[0][0]
+        else:
+            print("No result in count_cards")
+            return 0
+
+    async def count_male(self):
+        result = await self.db.custom_query("select count(id) from cards where sex = 1;")
+        if result:
+            return result[0][0]
+        else:
+            print("No result in count_male")
+            return 0
+
+
     async def _update_seen_cards(self, user: User, recomendation_pool: List[int]):
         bit_string = ""
         result = await self.db.select(table="seen_cards", filter_by={"user_id": user.tg_id})
