@@ -5,28 +5,11 @@ from telegram import AIOgramBot, AIOgramDispatcher, DefaultBotProperties
 from telegram import MasterHandler
 
 
-from initialisations import initialise_handlers
+from initialisations import master_handler, stat_service
 
 
 async def main():
-    config = Config(".env")
-
-    bot = AIOgramBot(
-        token=config.token,
-        default=DefaultBotProperties(
-            parse_mode="HTML"
-        )
-    )
-    dispatcher = AIOgramDispatcher()
-
-    update_handlers = initialise_handlers(bot)
-
-    master_handler = MasterHandler(
-        bot=bot,
-        dispatcher=dispatcher,
-        update_handlers=update_handlers
-    )
-
+    await stat_service.start_stats_cycle()
     await master_handler.run()
 
 

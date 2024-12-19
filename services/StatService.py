@@ -1,6 +1,7 @@
 from typing import *
+import asyncio
 
-from models import Statistics
+from models import Statistics, User
 
 from logic import (
     UserLoader, UserWriter,
@@ -37,3 +38,19 @@ class StatService:
             total_messages_count=await self.user_loader.get_total_messages_count(),
         )
         return stats
+
+    async def add_liked(self, user: User) -> None:
+        await self.user_writer.add_liked(user)
+
+    async def add_messaged(self, user: User) -> None:
+        await self.user_writer.add_messaged(user)
+
+    async def stats_cycle(self) -> None:
+        print("Starting stats cycle")
+        while True:
+            await asyncio.sleep(60) # TODO : set to 60 * 60 * 24
+            print("cycle passed, reseting liked and messaged")
+            await self.user_writer.reset_liked_and_messaged()
+
+    async def start_stats_cycle(self) -> None:
+        self.task = asyncio.create_task(self.stats_cycle())

@@ -26,3 +26,15 @@ class UserWriter(ABC):
     @abstractmethod
     async def delete(self, user: User) -> None:
         ...
+
+    @abstractmethod
+    async def add_liked(self, user: User) -> None:
+        ...
+    
+    @abstractmethod
+    async def add_messaged(self, user: User) -> None:
+        ...
+
+    @abstractmethod
+    async def reset_liked_and_messaged(self) -> None:
+        ...

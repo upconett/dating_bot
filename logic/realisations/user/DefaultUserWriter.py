@@ -96,6 +96,22 @@ class DefaultUserWriter(UserWriter):
         await self.cache.set_data(f"tg_id:{user.tg_id}", UserAdapter.to_dict(user))
         await self.cache.set_data(f"id:{user.id}", user.tg_id)
 
+    async def add_liked(self, user: User) -> None:
+        await self.db.custom_query(
+            "update users set liked_today = liked_today + 1 "
+            f"where id = {user.id};"
+        )
+    
+    async def add_messaged(self, user: User) -> None:
+        await self.db.custom_query(
+            "update users set messaged_today = messaged_today + 1 "
+            f"where id = {user.id};"
+        )
+
+    async def reset_liked_and_messaged(self) -> None:
+        await self.db.custom_query(
+            "update users set liked_today = 0, messaged_today = 0;"
+        )
     
     async def delete(self, user: User) -> None:
         await self.db.delete(

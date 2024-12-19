@@ -8,7 +8,7 @@ from logic import CardLoader
 from logic.realisations.card import DefaultCardWriter, DefaultCardLoader
 from logic.realisations.user import DefaultUserLoader, DefaultUserWriter
 
-from services import UserService, CardService
+from services import UserService, CardService, StatService
 
 from telegram import AIOgramBot
 from telegram import UpdateHandler, UpdateHandlerConfig
@@ -23,119 +23,133 @@ from telegram import NotificationManager
 from telegram import F, filters
 from telegram.utils.middleware import MediaGroupMiddleware, DefaultMiddleware
 
+from telegram import Config
+from telegram import AIOgramBot, AIOgramDispatcher, DefaultBotProperties
+from telegram import MasterHandler
 
-def init_idle_handler(
-        notification_manager: NotificationManager,
-        user_service: UserService,
-        card_service: CardService
-    ) -> IdleHandler:
-    return IdleHandler(
-        UpdateHandlerConfig(
-            router_name="idle",
-            message_filters=[F.text],
-            message_middleware=DefaultMiddleware(user_service),
-        ),
-        notification_manager=notification_manager,
-        user_service=user_service,
-        card_service=card_service
-    )
+#region Controllers
+
+db_controller = SQLiteController("test.db")
+cache_controller = DictCacheController()
+
+#endregion
 
 
-def init_card_creation_handler(
-        user_service: UserService,
-        card_service: CardService
-    ) -> CardCreationHandler:
-    return CardCreationHandler(
-        UpdateHandlerConfig(
-            router_name="card_creation",
-            message_middleware=MediaGroupMiddleware(user_service),
-        ),
-        user_service=user_service,
-        card_service=card_service
-    )
+#region Logic
+
+user_loader = DefaultUserLoader(db_controller, cache_controller)
+user_writer = DefaultUserWriter(db_controller, cache_controller)
+
+card_writer = DefaultCardWriter(db_controller, cache_controller)
+card_loader = DefaultCardLoader(db_controller, cache_controller)
+
+#endregion
 
 
-def init_settings_handler(
-        user_service: UserService,
-        card_service: CardService
-    ) -> SettingsHandler:
-    return SettingsHandler(
-        UpdateHandlerConfig(
-            router_name="settings",
-            message_middleware=DefaultMiddleware(user_service),
-        ),
-        user_service=user_service,
-        card_service=card_service,
-    )
+#region Services
 
-
-def initialise_user_service(db_controller: DBController, cache_controller: CacheController) -> UserService:
-    user_loader = DefaultUserLoader(db_controller, cache_controller)
-    user_writer = DefaultUserWriter(db_controller, cache_controller)
-
-    return UserService(
+user_service = UserService(
         user_loader=user_loader,
         user_writer=user_writer,
+)
+
+card_service = CardService(
+    card_writer=card_writer,
+    card_loader=card_loader
+)
+
+stat_service = StatService(
+    user_loader,
+    user_writer,
+    card_loader
+)
+
+#endregion
+
+
+#region Bot
+
+config = Config(".env")
+
+bot = AIOgramBot(
+    token=config.token,
+    default=DefaultBotProperties(
+        parse_mode="HTML"
     )
+)
+
+dispatcher = AIOgramDispatcher()
+
+notification_manager = NotificationManager(bot, card_loader)
+
+#endregion
 
 
-def initialise_card_service(card_loader: CardLoader, db_controller: DBController, cache_controller: CacheController) -> CacheController:
-    card_writer = DefaultCardWriter(db_controller, cache_controller)
-    # card_validator = DefaultCardValidator() # TODO : implement card_validator
+#region Handlers
 
-    return CardService(
-        card_writer=card_writer, # TODO : implement card_loader, card_validator
-        card_loader=card_loader
-    )
+idle_handler = IdleHandler(
+    UpdateHandlerConfig(
+        router_name="idle",
+        message_filters=[F.text],
+        message_middleware=DefaultMiddleware(user_service),
+    ),
+    notification_manager=notification_manager,
+    user_service=user_service,
+    card_service=card_service
+)
+
+card_creation_handler = CardCreationHandler(
+    UpdateHandlerConfig(
+        router_name="card_creation",
+        message_middleware=MediaGroupMiddleware(user_service),
+    ),
+    user_service=user_service,
+    card_service=card_service
+)
+
+settings_handler = SettingsHandler(
+    UpdateHandlerConfig(
+        router_name="settings",
+        message_middleware=DefaultMiddleware(user_service),
+    ),
+    user_service=user_service,
+    card_service=card_service,
+)
+
+recomendation_handler = RecomendationHandler(
+    UpdateHandlerConfig(
+        router_name="recomendations",
+        message_middleware=DefaultMiddleware(user_service),
+    ),
+    notification_manager=notification_manager,
+    user_service=user_service,
+    card_service=card_service,
+)
+
+card_menu_handler = CardMenuHandler(
+    UpdateHandlerConfig(
+        router_name="card_menu",
+        message_middleware=MediaGroupMiddleware(user_service),
+    ),
+    user_service=user_service,
+    card_service=card_service,
+)
+
+#endregion
 
 
-def init_recomendation_handler(
-        notification_manager: NotificationManager,
-        user_service: UserService,
-        card_service: CardService
-    ) -> RecomendationHandler:
-    return RecomendationHandler(
-        UpdateHandlerConfig(
-            router_name="recomendations",
-            message_middleware=DefaultMiddleware(user_service),
-        ),
-        notification_manager=notification_manager,
-        user_service=user_service,
-        card_service=card_service,
-    )
+#region MasterHandler
 
+master_handler = MasterHandler(
+    bot=bot,
+    dispatcher=dispatcher,
+    update_handlers=[
+        idle_handler,
+        card_creation_handler,
+        settings_handler,
+        recomendation_handler,
+        card_menu_handler
+    ]
+)
 
-def init_card_menu_handler(
-        user_service: UserService,
-        card_service: CardService,
-    ) -> CardMenuHandler:
-    return CardMenuHandler(
-        UpdateHandlerConfig(
-            router_name="card_menu",
-            message_middleware=MediaGroupMiddleware(user_service),
-        ),
-        user_service=user_service,
-        card_service=card_service,
-    )
-
-
-
-def initialise_handlers(bot: AIOgramBot) -> List[UpdateHandler]:
-    handlers = []
-
-    db_controller = SQLiteController("test.db")
-    cache_controller = DictCacheController()
-
-    card_loader = DefaultCardLoader(db_controller, cache_controller)
-
-    notification_manager = NotificationManager(bot, card_loader)
-    user_service = initialise_user_service(db_controller, cache_controller)
-    card_service = initialise_card_service(card_loader, db_controller, cache_controller)
-
-    handlers.append(init_idle_handler(notification_manager, user_service, card_service))
-    handlers.append(init_card_creation_handler(user_service, card_service))
-    handlers.append(init_settings_handler(user_service, card_service))
-    handlers.append(init_recomendation_handler(notification_manager, user_service, card_service))
-    handlers.append(init_card_menu_handler(user_service, card_service))
-
-    return handlers
+#endregion
