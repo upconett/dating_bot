@@ -124,6 +124,7 @@ recomendation_handler = RecomendationHandler(
     notification_manager=notification_manager,
     user_service=user_service,
     card_service=card_service,
+    stat_service=stat_service,
 )
 
 card_menu_handler = CardMenuHandler(

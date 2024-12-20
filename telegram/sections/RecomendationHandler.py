@@ -10,7 +10,7 @@ from telegram import NotificationManager
 
 from models import User, Card, Media
 
-from services import UserService, CardService
+from services import UserService, CardService, StatService
 from logic.exceptions import CardNotFound, InvalidUser
 
 
@@ -18,6 +18,7 @@ class RecomendationHandler(UpdateHandler):
     notification_manager: NotificationManager
     user_service: UserService
     card_service: CardService
+    stat_service: StatService
 
     def __init__(
             self,
@@ -56,6 +57,7 @@ class RecomendationHandler(UpdateHandler):
         await self._send_next_recomendation(message, state, user)
         receiver = await self.user_service.get_by_card(last_card)
         await self.notification_manager.send_like(user, receiver)
+        await self.stat_service.add_liked(user)
     
 
     async def start_message_card(self, message: AIOgramMessage, state: FSMContext, user: User):
@@ -79,6 +81,7 @@ class RecomendationHandler(UpdateHandler):
         await self._send_next_recomendation(message, state, user)
         receiver = await self.user_service.get_by_card(last_card)
         await self.notification_manager.send_message(user, receiver, message.text)
+        await self.stat_service.add_messaged(user)
 
 
     #region private
