@@ -8,3 +8,5 @@ from telegram.MasterHandler import MasterHandler
 from telegram.Config import Config
 
 from telegram.States import States
+
+from telegram.utils.filters import IsAdmin

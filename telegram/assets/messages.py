@@ -1,5 +1,6 @@
 from typing import List
-from models import Card, Interest, Sex, User
+from models import *
+
 
 
 def _build_interests(interests: int) -> List[str]:
@@ -222,3 +223,21 @@ CARD_DISABLED = (
 CARD_ENABLED = (
     "Карта включена"
 )
+
+def statistics(stats: Statistics) -> str:
+    male_percentage = round(stats.cards_count / stats.male_count * 100, 2)
+    female_percentage = round(1 - male_percentage, 2)
+    mean_likes_count = round(stats.users_count / stats.total_likes_count, 2)
+    mean_messages_count = round(stats.users_count / stats.total_messages_count, 2)
+    return (
+        "Стастистика 📊\n"
+        f"Кол-во юзеров: {stats.users_count}\n"
+        f"Кол-во активных юзеров: {stats.active_users_count}\n\n"
+        "Пол аудитории:\n"
+        f"М: {male_percentage} % / Ж: {female_percentage} %\n\n"
+        "За сегодня:\n"
+        f"Среднее число лайков: {mean_likes_count}\n"
+        f"Среднее число сообщений: {mean_messages_count}\n"
+        f"Людей сделало хотя бы 1 лайк: {stats.users_who_liked_count}\n"
+        f"Людей отправило хотя бы 1 сообщение: {stats.users_who_liked_count}\n"
+    )

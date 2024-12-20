@@ -174,3 +174,10 @@ CHANGE_MEDIA = ReplyKeyboard(
     keyboard=[[ReplyButton(text="Отмена")]],
     resize_keyboard=True
 )
+
+ADMIN_STATS = InlineKeyboard(
+    inline_keyboard=[
+        [InlineButton(text="Рассылка пока не работает")],
+        [InlineButton(text="График возраста не работает")]
+    ]
+)
