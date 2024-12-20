@@ -14,5 +14,11 @@ class User:
     username: Optional[str]
     settings: Optional[Settings]
 
+    likes_left: int
+    bonus_likes: int
+
+    messages_left: int
+    bonus_messages: int
+
     def __repr__(self):
         return f"User (id:{self.id}, tg_id:{self.tg_id}, {self.first_name}, {self.username or 'no-username'})"

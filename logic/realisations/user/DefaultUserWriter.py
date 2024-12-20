@@ -3,6 +3,7 @@ from logic.static import UserAdapter
 
 from models import User
 
+from controllers.exceptions import NoDataInCache
 from logic.exceptions import UserNotFound, SettingsNotCreated
 
 
@@ -96,21 +97,51 @@ class DefaultUserWriter(UserWriter):
         await self.cache.set_data(f"tg_id:{user.tg_id}", UserAdapter.to_dict(user))
         await self.cache.set_data(f"id:{user.id}", user.tg_id)
 
-    async def add_liked(self, user: User) -> None:
+    async def add_liked(self, user: User, bonus: bool) -> None:
+        try:
+            cache_data = await self.cache.get_data(f"tg_id:{user.tg_id}")
+            if bonus: cache_data['bonus_likes'] -= 1
+            else: cache_data['likes_left'] -= 1
+            await self.cache.set_data(f"tg_id:{user.tg_id}", cache_data)
+        except NoDataInCache:
+            pass
+
+        column = "likes_left"
+        if bonus:
+            column = "bonus_likes"
+        
         await self.db.custom_query(
-            "update users set liked_today = liked_today + 1 "
+            "update users set "
+            "liked_today = liked_today + 1, "
+            f"{column} = {column} - 1 "
             f"where id = {user.id};"
         )
     
-    async def add_messaged(self, user: User) -> None:
+    async def add_messaged(self, user: User, bonus: bool) -> None:
+        try:
+            cache_data = await self.cache.get_data(f"tg_id:{user.tg_id}")
+            if bonus: cache_data['bonus_messages'] -= 1
+            else: cache_data['messages_left'] -= 1
+            await self.cache.set_data(f"tg_id:{user.tg_id}", cache_data)
+        except NoDataInCache:
+            pass
+
+        column = "messages_left"
+        if bonus:
+            column = "bonus_messages"
+
         await self.db.custom_query(
-            "update users set messaged_today = messaged_today + 1 "
+            "update users set "
+            "messaged_today = messaged_today + 1, "
+            f"{column} = {column} - 1 "
             f"where id = {user.id};"
         )
 
-    async def reset_liked_and_messaged(self) -> None:
+    async def reset_likes_and_messages(self) -> None:
         await self.db.custom_query(
-            "update users set liked_today = 0, messaged_today = 0;"
+            "update users set "
+            "liked_today = 0, messaged_today = 0, "
+            "likes_left = 20, messages_left = 2; "
         )
     
     async def delete(self, user: User) -> None:

@@ -53,7 +53,6 @@ class UserLoader(ABC):
     async def get_total_messages_count(self) -> int:
         ...
 
-    
     async def exists_by_tg_id(self, tg_id: int) -> User:
         try:
             self.get_by_tg_id(tg_id)

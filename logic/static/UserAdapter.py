@@ -13,7 +13,11 @@ class UserAdapter:
             first_name=data.get("first_name"),
             last_name=data.get("last_name"),
             username=data.get("username"),
-            settings=UserAdapter._settings_from_dict(data)
+            settings=UserAdapter._settings_from_dict(data),
+            likes_left=data.get("likes_left") or 0,
+            bonus_likes=data.get("bonus_likes") or 0,
+            messages_left=data.get("messages_left") or 0,
+            bonus_messages=data.get("bonus_messages") or 0,
         )
 
     
@@ -26,7 +30,11 @@ class UserAdapter:
             "first_name": user.first_name,
             "last_name": user.last_name,
             "username": user.username,
-            "settings": settings_dict
+            "settings": settings_dict,
+            "likes_left": user.likes_left,
+            "bonus_likes": user.bonus_likes,
+            "messages_left": user.messages_left,
+            "bonus_messages": user.bonus_messages
         }
 
     
@@ -62,5 +70,9 @@ class UserAdapter:
             first_name=chat.first_name,
             last_name=chat.last_name,
             username=chat.username,
-            settings = None
+            settings = None,
+            likes_left=20,
+            bonus_likes=0,
+            messages_left=2,
+            bonus_messages=0,
         )

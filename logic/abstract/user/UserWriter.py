@@ -36,5 +36,5 @@ class UserWriter(ABC):
         ...
 
     @abstractmethod
-    async def reset_liked_and_messaged(self) -> None:
+    async def reset_likes_and_messages(self) -> None:
         ...

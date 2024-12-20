@@ -14,8 +14,14 @@ class User(Base):
     first_name: Mapped[str] = mapped_column(nullable=False)
     last_name: Mapped[Optional[str]] = mapped_column(nullable=True)
     username: Mapped[Optional[str]] = mapped_column(nullable=True)
+
     liked_today: Mapped[int] = mapped_column(default=0)
+    likes_left: Mapped[int] = mapped_column(default=20)
+    bonus_likes: Mapped[int] = mapped_column(default=0)
+
     messaged_today: Mapped[int] = mapped_column(default=0)
+    messages_left: Mapped[int] = mapped_column(default=2)
+    bonus_messages: Mapped[int] = mapped_column(default=0)
 
     settings: Mapped["Settings"] = relationship(back_populates="user")
     card: Mapped["Card"] = relationship(back_populates="user")
