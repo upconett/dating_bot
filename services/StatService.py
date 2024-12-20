@@ -51,6 +51,13 @@ class StatService:
     async def add_messaged(self, user: User) -> None:
         await self.user_writer.add_messaged(user)
 
+    async def add_bonus_likes(self, user: User) -> None:
+        user.bonus_likes += 40
+        await self.user_writer.update(user)
+
+    async def add_bonus_messages(self, user: User) -> None:
+        user.bonus_messages += 5
+        await self.user_writer.update(user)
 
     async def stats_cycle(self) -> None:
         print("Starting stats cycle")

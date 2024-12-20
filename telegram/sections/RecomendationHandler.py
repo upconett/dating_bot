@@ -52,12 +52,17 @@ class RecomendationHandler(UpdateHandler):
         )
 
     async def like_card(self, message: AIOgramMessage, state: FSMContext, user: User):
-        data = await state.get_data()
-        last_card = data.get("last_card")
-        await self._send_next_recomendation(message, state, user)
-        receiver = await self.user_service.get_by_card(last_card)
-        await self.notification_manager.send_like(user, receiver)
-        await self.stat_service.add_liked(user)
+        if self.stat_service.can_like(user):
+            await self.stat_service.add_liked(user)
+            data = await state.get_data()
+            last_card = data.get("last_card")
+            await self._send_next_recomendation(message, state, user)
+            receiver = await self.user_service.get_by_card(last_card)
+            await self.notification_manager.send_like(user, receiver)
+        else:
+            await message.answer
+            
+
     
 
     async def start_message_card(self, message: AIOgramMessage, state: FSMContext, user: User):

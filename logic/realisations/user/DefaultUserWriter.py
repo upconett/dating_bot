@@ -65,7 +65,11 @@ class DefaultUserWriter(UserWriter):
             data={
                 "first_name": user.first_name,
                 "last_name": user.last_name,
-                "username": user.username
+                "username": user.username,
+                "likes_left": user.likes_left,
+                "bonus_likes": user.bonus_likes,
+                "messages_left": user.messages_left,
+                "bonus_messages": user.bonus_messages,
             }
         )
         settings_update_status = await self.db.update(
