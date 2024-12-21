@@ -77,7 +77,10 @@ class PaymentHandler(UpdateHandler):
     async def cancel_payment(self, query: AIOgramQuery):
         await query.message.delete()
 
+
     def register_handlers(self):
         self.router.callback_query.register(self.cancel_payment, F.data == "cancel")
         self.router.callback_query.register(self.send_like_payment_link, F.data == "payment_like")
         self.router.callback_query.register(self.check_like_payment, F.data.startswith("check_payment_like_"))
+        self.router.callback_query.register(self.send_message_payment_link, F.data == "payment_message")
+        self.router.callback_query.register(self.check_message_payment, F.data.startswith("check_payment_message_"))
