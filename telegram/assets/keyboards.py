@@ -4,7 +4,7 @@ from telegram import InlineKeyboard, ReplyKeyboard, ReplyKeyboardRemove
 from telegram import InlineButton, ReplyButton
 from telegram import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
-from models import Interest, Card
+from models import Interest, Card, Payment
 
 
 empty = ReplyKeyboardRemove()
@@ -181,3 +181,35 @@ ADMIN_STATS = InlineKeyboard(
         [InlineButton(text="График возраста не работает")]
     ]
 )
+
+LIKE_PAYMENT = InlineKeyboard(
+    inline_keyboard=[
+        [InlineButton(text="Оплатить", callback_data="payment_like")],
+        [InlineButton(text="Отмена", callback_data="cancel")]
+    ]
+)
+
+MESSAGE_PAYMENT = InlineKeyboard(
+    inline_keyboard=[
+        [InlineButton(text="Оплатить", callback_data="payment_message")],
+        [InlineButton(text="Отмена", callback_data="cancel")]
+    ]
+)
+
+def like_payment_with_url(payment: Payment) -> InlineKeyboard:
+    return InlineKeyboard(
+        inline_keyboard=[
+            [InlineButton(text="Перейти", url=payment.base_url)],
+            [InlineButton(text="Проверить оплату", callback_data=f"check_payment_like_{payment.label}")],
+            [InlineButton(text="Отмена", callback_data="cancel")]
+        ]
+    )
+
+def message_payment_with_url(payment: Payment) -> InlineKeyboard:
+    return InlineKeyboard(
+        inline_keyboard=[
+            [InlineButton(text="Перейти", url=payment.base_url)],
+            [InlineButton(text="Проверить оплату", callback_data=f"check_payment_message_{payment.label}")],
+            [InlineButton(text="Отмена", callback_data="cancel")]
+        ]
+    )

@@ -5,3 +5,4 @@ from models.Card import Card
 from models.Media import Media
 from models.Interest import Interest
 from models.Statistics import Statistics
+from models.Payment import Payment

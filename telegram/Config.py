@@ -1,3 +1,5 @@
+# TODO : move to another package, should not be in telegram
+
 import os
 from dotenv import dotenv_values
 
@@ -13,5 +15,7 @@ class Config:
         try:
             self.token = denv["token"]
             self.admins = denv["admins"]
+            self.client_id = denv["client_id"]
+            self.client_secret = denv["client_secret"]
         except KeyError as key:
             raise DotEnvException(f"Key {key} required in {dotenv_path} file!")

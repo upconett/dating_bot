@@ -8,7 +8,12 @@ from logic import CardLoader
 from logic.realisations.card import DefaultCardWriter, DefaultCardLoader
 from logic.realisations.user import DefaultUserLoader, DefaultUserWriter
 
-from services import UserService, CardService, StatService
+from services import (
+    UserService,
+    CardService,
+    StatService,
+    PaymentService
+)
 
 from telegram import AIOgramBot
 from telegram import UpdateHandler, UpdateHandlerConfig
@@ -17,7 +22,9 @@ from telegram.sections import (
     CardCreationHandler,
     SettingsHandler,
     RecomendationHandler,
-    CardMenuHandler
+    CardMenuHandler,
+    AdminHandler,
+    PaymentHandler,
 )
 from telegram import NotificationManager
 from telegram import F, filters
@@ -26,6 +33,12 @@ from telegram.utils.middleware import MediaGroupMiddleware, DefaultMiddleware
 from telegram import Config
 from telegram import AIOgramBot, AIOgramDispatcher, DefaultBotProperties
 from telegram import MasterHandler
+
+#region Config
+
+config = Config(".env")
+
+#endregion
 
 #region Controllers
 
@@ -55,21 +68,23 @@ user_service = UserService(
 
 card_service = CardService(
     card_writer=card_writer,
-    card_loader=card_loader
+    card_loader=card_loader,
 )
 
 stat_service = StatService(
-    user_loader,
-    user_writer,
-    card_loader
+    user_loader=user_loader,
+    user_writer=user_writer,
+    card_loader=card_loader,
+)
+
+payment_service = PaymentService(
+    config=config,
 )
 
 #endregion
 
 
 #region Bot
-
-config = Config(".env")
 
 bot = AIOgramBot(
     token=config.token,
@@ -136,6 +151,27 @@ card_menu_handler = CardMenuHandler(
     card_service=card_service,
 )
 
+admin_handler = AdminHandler(
+    UpdateHandlerConfig(
+        router_name="admin",
+        message_middleware=DefaultMiddleware(user_service),
+    ),
+    notification_manager=notification_manager,
+    user_service=user_service,
+    stat_service=stat_service,
+)
+
+payment_handler = PaymentHandler(
+    UpdateHandlerConfig(
+        router_name="payment",
+        message_middleware=DefaultMiddleware(user_service)
+    ),
+    notification_manager=notification_manager,
+    user_service=user_service,
+    stat_service=stat_service,
+    payment_service=payment_service
+)
+
 #endregion
 
 
@@ -149,7 +185,9 @@ master_handler = MasterHandler(
         card_creation_handler,
         settings_handler,
         recomendation_handler,
-        card_menu_handler
+        card_menu_handler,
+        admin_handler,
+        payment_handler,
     ]
 )
 

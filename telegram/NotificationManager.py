@@ -1,5 +1,6 @@
 from typing import List
 
+from telegram import Config
 from telegram import AIOgramBot, AIOgramMessage
 from telegram import InputMediaPhoto, InputMediaVideo
 
@@ -12,14 +13,17 @@ from models import User, Card
 class NotificationManager():
     bot: AIOgramBot
     card_loader: CardLoader
+    admins: List[str]
 
     def __init__(
             self,
             bot: AIOgramBot,
             card_loader: CardLoader,
+            config: Config
         ):
         self.bot = bot
         self.card_loader = card_loader
+        self.admins = config.admins
 
 
     async def send_like(self, sender: User, receiver: User):
@@ -62,6 +66,21 @@ class NotificationManager():
             keyboard=keyboards.response_card(sender.tg_id),
             reply_to_message=first_message.message_id
         )
+    
+
+    async def log_like_payment(self, user: User):
+        for admin_id in self.admins:
+            await self.bot.send_message(
+                chat_id=admin_id,
+                text=messages.like_payment_log(user)
+            )
+
+    async def log_message_payment(self, user: User):
+        for admin_id in self.admins:
+            await self.bot.send_message(
+                chat_id=admin_id,
+                text=messages.message_payment_log(user)
+            )
         
 
     async def _send_card(self, receiver: User, card: Card, keyboard = None, reply_to_message: int = None):
@@ -100,9 +119,6 @@ class NotificationManager():
                 )
             case _:
                 return None
-
-
-
 
 
     # Redundant, because can not add reply_markup to media_group :(

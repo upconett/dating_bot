@@ -241,3 +241,39 @@ def statistics(stats: Statistics) -> str:
         f"Людей сделало хотя бы 1 лайк: {stats.users_who_liked_count}\n"
         f"Людей отправило хотя бы 1 сообщение: {stats.users_who_liked_count}\n"
     )
+
+LIKE_PAYMENT_REQUEST = (
+    "За сегодня ты уже лайкнул 40 анкет. "
+    "Чтобы получить ещё 40 лайков, оплати 99 руб."
+)
+
+MESSAGE_PAYMENT_REQUEST = (
+    "За сегодня ты уже написал 2 сообщения. "
+    "Чтобы получить 5 дополнительных сообщений, оплати 99 руб."
+)
+
+PAYMENT_LINK = (
+    "Перейди по ссылке чтобы оплатить"
+)
+
+LIKE_PAYMENT_SUCCESS = (
+    "Спасибо за оплату. Вам начислено 40 лайков"
+)
+
+MESSAGE_PAYMENT_SUCCESS = (
+    "Спасибо за оплату. Вам начислено 5 сообщений"
+)
+
+def like_payment_log(user: User) -> str:
+    user_link = f'<a href="tg://user?id={user.tg_id}">{user.first_name}</a>'
+    username = f"@{user.username}" if user.username else "..."
+    return (
+        f"Пользователь {user_link} ({username}) оплатил 40 лайков"
+    )
+
+def message_payment_log(user: User) -> str:
+    user_link = f'<a href="tg://user?id={user.tg_id}">{user.first_name}</a>'
+    username = f"@{user.username}" if user.username else "..."
+    return (
+        f"Пользователь {user_link} ({username}) оплатил 5 сообщений"
+    )

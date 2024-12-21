@@ -25,12 +25,14 @@ class RecomendationHandler(UpdateHandler):
             config: UpdateHandlerConfig,
             notification_manager: NotificationManager,
             user_service: UserService,
-            card_service: CardService
+            card_service: CardService,
+            stat_service: StatService
         ):
         super().__init__(config)
         self.notification_manager = notification_manager
         self.user_service = user_service
         self.card_service = card_service
+        self.stat_service = stat_service
 
 
     async def recomend_first(self, message: AIOgramMessage, state: FSMContext, user: User):
@@ -60,19 +62,27 @@ class RecomendationHandler(UpdateHandler):
             receiver = await self.user_service.get_by_card(last_card)
             await self.notification_manager.send_like(user, receiver)
         else:
-            await message.answer
-            
-
+            await message.answer(
+                text=messages.LIKE_PAYMENT_REQUEST,
+                reply_markup=keyboards.LIKE_PAYMENT
+            )
     
 
     async def start_message_card(self, message: AIOgramMessage, state: FSMContext, user: User):
-        data = await state.get_data()
-        last_card = data.get("last_card")
-        await message.answer(
-            text=messages.message_card(last_card),
-            reply_markup=keyboards.empty
-        )
-        await state.set_state(States.MESSAGE_CARD)
+        if self.stat_service.can_message(user):
+            data = await state.get_data()
+            last_card = data.get("last_card")
+            await message.answer(
+                text=messages.message_card(last_card),
+                reply_markup=keyboards.empty
+            )
+            await state.set_state(States.MESSAGE_CARD)
+        else:
+            await message.answer(
+                text=messages.MESSAGE_PAYMENT_REQUEST,
+                reply_markup=keyboards.MESSAGE_PAYMENT
+            )
+        
 
     
     async def send_message_card(self, message: AIOgramMessage, state: FSMContext, user: User):
