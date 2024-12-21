@@ -49,7 +49,7 @@ class PaymentHandler(UpdateHandler):
         )
 
     async def check_like_payment(self, query: AIOgramQuery, user: User):
-        payment_label = query.data.split("_")[2]
+        payment_label = query.data.split("_")[3]
         if await self.payment_service.is_payment_successful(payment_label):
             await query.message.edit_text(
                 text=messages.LIKE_PAYMENT_SUCCESS,
@@ -62,7 +62,7 @@ class PaymentHandler(UpdateHandler):
 
 
     async def check_message_payment(self, query: AIOgramQuery, user: User):
-        payment_label = query.data.split("_")[2]
+        payment_label = query.data.split("_")[3]
         if await self.payment_service.is_payment_successful(payment_label):
             await query.message.edit_text(
                 text=messages.MESSAGE_PAYMENT_SUCCESS,
@@ -80,3 +80,4 @@ class PaymentHandler(UpdateHandler):
     def register_handlers(self):
         self.router.callback_query.register(self.cancel_payment, F.data == "cancel")
         self.router.callback_query.register(self.send_like_payment_link, F.data == "payment_like")
+        self.router.callback_query.register(self.check_like_payment, F.data.startswith("check_payment_like_"))

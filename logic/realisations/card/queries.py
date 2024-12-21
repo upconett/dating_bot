@@ -1,5 +1,5 @@
 FULL_RECOMENDATION = """
-WITH active_cads AS (
+WITH active_cards AS (
     SELECT *
     from cards
     where active = 1
@@ -41,7 +41,7 @@ LIMIT {limit};
 """
 
 RECOMENDATION_NO_CITY = """
-WITH active_cads AS (
+WITH active_cards AS (
     SELECT *
     from cards
     where active = 1
@@ -78,7 +78,7 @@ LIMIT {limit};
 """
 
 RECOMENDATION_NO_AGE = """
-WITH active_cads AS (
+WITH active_cards AS (
     SELECT *
     from cards
     where active = 1
@@ -115,7 +115,7 @@ LIMIT {limit};
 """
 
 RECOMENDATION_NO_CITY_AGE = """
-WITH active_cads AS (
+WITH active_cards AS (
     SELECT *
     from cards
     where active = 1
@@ -147,7 +147,7 @@ LIMIT {limit};
 """
 
 RECOMENDATION_NO_INTERESTS = """
-WITH active_cads AS (
+WITH active_cards AS (
     SELECT *
     from cards
     where active = 1
@@ -181,7 +181,7 @@ LIMIT {limit};
 """
 
 RECOMENDATION_BY_SEX = """
-WITH active_cads AS (
+WITH active_cards AS (
     SELECT *
     from cards
     where active = 1
@@ -205,7 +205,7 @@ LIMIT {limit};
 """
 
 RECOMENDATION_UNSEEN = """
-WITH active_cads AS (
+WITH active_cards AS (
     SELECT *
     from cards
     where active = 1

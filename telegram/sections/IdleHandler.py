@@ -119,6 +119,13 @@ class IdleHandler(UpdateHandler):
         await query.answer()
 
 
+    async def report(self, query: AIOgramQuery, state: FSMContext, user: User):
+        reported_card_id = int(query.data.split("_")[1])
+        await query.message.edit_reply_markup(reply_markup=None)
+        await query.message.answer(messages.REPORT_SENT)
+        await self.notification_manager.report(user, reported_card_id)
+
+
     def register_handlers(self):
         self.router.message.register(self.on_start, filters.CommandStart())
         self.router.message.register(self.my_card, F.text == "Моя анкета", StateFilter(States.IDLE))
@@ -133,3 +140,4 @@ class IdleHandler(UpdateHandler):
 
         self.router.callback_query.register(self.response_like, F.data.startswith("response_like_"))
         self.router.callback_query.register(self.response_dislike, F.data.startswith("response_dislike_"))
+        self.router.callback_query.register(self.report, F.data.startswith("report_"))

@@ -47,3 +47,6 @@ class UserService:
             await self.user_writer.create(user)
         except SettingsNotCreated:
             print("Blyat, cho za huyna")
+
+    async def ban_user(self, user: User) -> None:
+        user.banned = True

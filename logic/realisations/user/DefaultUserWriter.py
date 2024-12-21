@@ -101,17 +101,17 @@ class DefaultUserWriter(UserWriter):
         await self.cache.set_data(f"tg_id:{user.tg_id}", UserAdapter.to_dict(user))
         await self.cache.set_data(f"id:{user.id}", user.tg_id)
 
-    async def add_liked(self, user: User, bonus: bool) -> None:
+    async def add_liked(self, user: User, use_bonus: bool) -> None:
         try:
             cache_data = await self.cache.get_data(f"tg_id:{user.tg_id}")
-            if bonus: cache_data['bonus_likes'] -= 1
+            if use_bonus: cache_data['bonus_likes'] -= 1
             else: cache_data['likes_left'] -= 1
             await self.cache.set_data(f"tg_id:{user.tg_id}", cache_data)
         except NoDataInCache:
             pass
 
         column = "likes_left"
-        if bonus:
+        if use_bonus:
             column = "bonus_likes"
         
         await self.db.custom_query(
@@ -121,17 +121,17 @@ class DefaultUserWriter(UserWriter):
             f"where id = {user.id};"
         )
     
-    async def add_messaged(self, user: User, bonus: bool) -> None:
+    async def add_messaged(self, user: User, use_bonus: bool) -> None:
         try:
             cache_data = await self.cache.get_data(f"tg_id:{user.tg_id}")
-            if bonus: cache_data['bonus_messages'] -= 1
+            if use_bonus: cache_data['bonus_messages'] -= 1
             else: cache_data['messages_left'] -= 1
             await self.cache.set_data(f"tg_id:{user.tg_id}", cache_data)
         except NoDataInCache:
             pass
 
         column = "messages_left"
-        if bonus:
+        if use_bonus:
             column = "bonus_messages"
 
         await self.db.custom_query(
@@ -145,7 +145,7 @@ class DefaultUserWriter(UserWriter):
         await self.db.custom_query(
             "update users set "
             "liked_today = 0, messaged_today = 0, "
-            "likes_left = 20, messages_left = 2; "
+            "likes_left = 0, messages_left = 2; "
         )
     
     async def delete(self, user: User) -> None:

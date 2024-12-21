@@ -28,11 +28,11 @@ class UserWriter(ABC):
         ...
 
     @abstractmethod
-    async def add_liked(self, user: User) -> None:
+    async def add_liked(self, user: User, use_bonus: bool) -> None:
         ...
     
     @abstractmethod
-    async def add_messaged(self, user: User) -> None:
+    async def add_messaged(self, user: User, use_bonus: bool) -> None:
         ...
 
     @abstractmethod

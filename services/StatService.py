@@ -46,10 +46,12 @@ class StatService:
         return user.bonus_messages > 0 or user.messages_left > 0
 
     async def add_liked(self, user: User) -> None:
-        await self.user_writer.add_liked(user)
+        use_bonus = user.bonus_likes > 0
+        await self.user_writer.add_liked(user, use_bonus)
 
     async def add_messaged(self, user: User) -> None:
-        await self.user_writer.add_messaged(user)
+        use_bonus = user.bonus_messages > 0
+        await self.user_writer.add_messaged(user, use_bonus)
 
     async def add_bonus_likes(self, user: User) -> None:
         user.bonus_likes += 40
@@ -62,9 +64,9 @@ class StatService:
     async def stats_cycle(self) -> None:
         print("Starting stats cycle")
         while True:
-            await asyncio.sleep(60) # TODO : set to 60 * 60 * 24
             print("cycle passed, reseting liked and messaged")
             await self.user_writer.reset_likes_and_messages()
+            await asyncio.sleep(60) # TODO : set to 60 * 60 * 24
 
     async def start_stats_cycle(self) -> None:
         self.task = asyncio.create_task(self.stats_cycle())

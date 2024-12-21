@@ -19,10 +19,11 @@ class DefaultCardWriter(CardWriter):
 
 
     async def update(self, card: Card):
+        dct = self._compose_card_dict(card)
         await self.db.update(
             table="cards",
             filter_by={"id": card.id },
-            data=self._compose_card_dict(card)
+            data=dct,
         )
         await self._delete_card_media(card)
         await self._insert_card_media(card)
@@ -76,7 +77,8 @@ class DefaultCardWriter(CardWriter):
             "city": card.city,
             "sex": card.sex.value,
             "interests": int(card.interests),
-            "description": card.description
+            "description": card.description,
+            "active": card.active,
         }
 
 

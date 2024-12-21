@@ -35,5 +35,8 @@ class AdminHandler(UpdateHandler):
             reply_markup=keyboards.ADMIN_STATS
         )
 
+    # async def ban_reported_card(self, query: AIOgramQuery):
+    #     await self.user_service.
+
     def register_handlers(self):
         self.router.message.register(self.on_stats, filters.Command("stats", "statistics"), IsAdmin())

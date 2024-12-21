@@ -217,18 +217,22 @@ ENSURE_ENABLING = (
 )
 
 CARD_DISABLED = (
-    "Карта отключена"
+    "Анкета отключена"
 )
 
 CARD_ENABLED = (
-    "Карта включена"
+    "Анкета включена"
 )
 
 def statistics(stats: Statistics) -> str:
-    male_percentage = round(stats.cards_count / stats.male_count * 100, 2)
-    female_percentage = round(1 - male_percentage, 2)
-    mean_likes_count = round(stats.users_count / stats.total_likes_count, 2)
-    mean_messages_count = round(stats.users_count / stats.total_messages_count, 2)
+    male_percentage = round(stats.male_count / stats.cards_count * 100, 2)
+    female_percentage = round(100 - male_percentage, 2)
+    mean_likes_count = 0
+    mean_messages_count = 0
+    if stats.users_who_liked_count != 0 and stats.total_likes_count != 0:
+        mean_likes_count = round(stats.users_who_liked_count / stats.total_likes_count, 2)
+    if stats.users_who_messaged_count != 0 and stats.total_messages_count:
+        mean_messages_count = round(stats.users_who_messaged_count / stats.total_messages_count, 2)
     return (
         "Стастистика 📊\n"
         f"Кол-во юзеров: {stats.users_count}\n"
@@ -239,7 +243,7 @@ def statistics(stats: Statistics) -> str:
         f"Среднее число лайков: {mean_likes_count}\n"
         f"Среднее число сообщений: {mean_messages_count}\n"
         f"Людей сделало хотя бы 1 лайк: {stats.users_who_liked_count}\n"
-        f"Людей отправило хотя бы 1 сообщение: {stats.users_who_liked_count}\n"
+        f"Людей отправило хотя бы 1 сообщение: {stats.users_who_messaged_count}\n"
     )
 
 LIKE_PAYMENT_REQUEST = (
@@ -276,4 +280,16 @@ def message_payment_log(user: User) -> str:
     username = f"@{user.username}" if user.username else "..."
     return (
         f"Пользователь {user_link} ({username}) оплатил 5 сообщений"
+    )
+
+REPORT_SENT = (
+    "Спасибо, мы рассмотрим вашу жалобу"
+)
+
+def report_log(who_sent: User) -> str:
+    user = who_sent
+    user_link = f'<a href="tg://user?id={user.tg_id}">{user.first_name}</a>'
+    username = f"@{user.username}" if user.username else "..."
+    return (
+        f"Пользователь {user_link} ({username}) пожаловался на анкету ☝️"
     )

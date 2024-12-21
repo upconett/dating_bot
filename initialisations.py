@@ -1,12 +1,14 @@
 from typing import List
 
+from yoomoney import Client as YooClient
+
 from controllers import DBController, CacheController
 from controllers.database import SQLiteController
 from controllers.cache import DictCacheController
 
-from logic import CardLoader
 from logic.realisations.card import DefaultCardWriter, DefaultCardLoader
 from logic.realisations.user import DefaultUserLoader, DefaultUserWriter
+from logic.realisations.payment import ThreadedPaymentCreator, ThreadedPaymentLoader
 
 from services import (
     UserService,
@@ -40,6 +42,14 @@ config = Config(".env")
 
 #endregion
 
+
+#region Payment
+
+yoomoney_client = YooClient(config.payment_token)
+
+#endregion
+
+
 #region Controllers
 
 db_controller = SQLiteController("test.db")
@@ -55,6 +65,9 @@ user_writer = DefaultUserWriter(db_controller, cache_controller)
 
 card_writer = DefaultCardWriter(db_controller, cache_controller)
 card_loader = DefaultCardLoader(db_controller, cache_controller)
+
+payment_creator = ThreadedPaymentCreator(yoomoney_client, config)
+payment_loader = ThreadedPaymentLoader(yoomoney_client)
 
 #endregion
 
@@ -78,7 +91,8 @@ stat_service = StatService(
 )
 
 payment_service = PaymentService(
-    config=config,
+    payment_creator=payment_creator,
+    payment_loader=payment_loader
 )
 
 #endregion
@@ -95,7 +109,7 @@ bot = AIOgramBot(
 
 dispatcher = AIOgramDispatcher()
 
-notification_manager = NotificationManager(bot, card_loader)
+notification_manager = NotificationManager(bot, card_loader, config)
 
 #endregion
 

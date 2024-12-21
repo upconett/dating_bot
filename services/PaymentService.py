@@ -1,6 +1,8 @@
-import time                             # TODO: Use time to get seconds since epoch for unique labeling
+from logic import PaymentCreator, PaymentLoader
+
 from models import User, Payment
 from telegram import Config
+
 
 class PaymentService:
     client_id: str
@@ -9,17 +11,18 @@ class PaymentService:
 
     def __init__(
             self,
-            config: Config
+            payment_creator: PaymentCreator,
+            payment_loader: PaymentLoader,
         ):
-        self.client_id = config.client_id
-        self.client_secret = config.client_secret
+        self.payment_creator = payment_creator
+        self.payment_loader = payment_loader
 
 
     async def create_like_payment(self, user: User) -> Payment:
-        ...
+        return await self.payment_creator.create_payment(target="likes", sum=2, user=user)
 
     async def create_message_payment(self, user: User) -> Payment:
-        ...
+        return await self.payment_creator.create_payment(target="messages", sum=2, user=user)
 
     async def is_payment_successful(self, payment_label: str) -> bool:
-        ...
+        return await self.payment_loader.is_successful(payment_label)

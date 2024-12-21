@@ -4,7 +4,7 @@ from telegram import InlineKeyboard, ReplyKeyboard, ReplyKeyboardRemove
 from telegram import InlineButton, ReplyButton
 from telegram import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
-from models import Interest, Card, Payment
+from models import Interest, Card, Payment, User
 
 
 empty = ReplyKeyboardRemove()
@@ -135,7 +135,7 @@ are_you_sure = ReplyKeyboard(
 card_menu = ReplyKeyboard(
     keyboard=[
         [ReplyButton(text="Вернуться")],
-        [ReplyButton(text="Заполнить анкету заного")],
+        [ReplyButton(text="Заполнить анкету заново")],
         [ReplyButton(text="Изменить медиа")]
     ],
     resize_keyboard=True,
@@ -143,12 +143,13 @@ card_menu = ReplyKeyboard(
 )
 
 
-def response_card(like_sender_id: int) -> InlineKeyboard:
+def response_card(sender: User) -> InlineKeyboard:
     return InlineKeyboard(
         inline_keyboard=[
             [
-                InlineButton(text="❤️", callback_data=f"response_like_{like_sender_id}"),
-                InlineButton(text="💔", callback_data=f"response_dislike_{like_sender_id}")
+                InlineButton(text="❤️", callback_data=f"response_like_{sender.tg_id}"),
+                InlineButton(text="Жалоба ⚠️", callback_data=f"report_{sender.id}"),
+                InlineButton(text="💔", callback_data=f"response_dislike_{sender.tg_id}"),
             ],
         ],
     )
@@ -177,8 +178,8 @@ CHANGE_MEDIA = ReplyKeyboard(
 
 ADMIN_STATS = InlineKeyboard(
     inline_keyboard=[
-        [InlineButton(text="Рассылка пока не работает")],
-        [InlineButton(text="График возраста не работает")]
+        [InlineButton(text="Рассылка пока не работает", callback_data="_")],
+        [InlineButton(text="График возраста не работает", callback_data="_")]
     ]
 )
 
@@ -211,5 +212,16 @@ def message_payment_with_url(payment: Payment) -> InlineKeyboard:
             [InlineButton(text="Перейти", url=payment.base_url)],
             [InlineButton(text="Проверить оплату", callback_data=f"check_payment_message_{payment.label}")],
             [InlineButton(text="Отмена", callback_data="cancel")]
+        ]
+    )
+
+def report_log(reported_card: Card) -> InlineKeyboard:
+    card = reported_card
+    return InlineKeyboard(
+        inline_keyboard=[
+            [
+                InlineButton(text="Забанить ⛔", callback_data=f"ban_{card.user_id}"),
+                InlineButton(text="Помиловать 😇", callback_data=f"spare")
+            ]
         ]
     )
