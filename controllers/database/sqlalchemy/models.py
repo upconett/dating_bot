@@ -10,7 +10,7 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     tg_id: Mapped[int] = mapped_column(unique=True, nullable=False)
-    active: Mapped[bool] = mapped_column(default=1)
+    active: Mapped[bool] = mapped_column(default=True)
     first_name: Mapped[str] = mapped_column(nullable=False)
     last_name: Mapped[Optional[str]] = mapped_column(nullable=True)
     username: Mapped[Optional[str]] = mapped_column(nullable=True)
@@ -22,6 +22,8 @@ class User(Base):
     messaged_today: Mapped[int] = mapped_column(default=0)
     messages_left: Mapped[int] = mapped_column(default=2)
     bonus_messages: Mapped[int] = mapped_column(default=0)
+
+    banned: Mapped[bool] = mapped_column(default=False)
 
     settings: Mapped["Settings"] = relationship(back_populates="user")
     card: Mapped["Card"] = relationship(back_populates="user")

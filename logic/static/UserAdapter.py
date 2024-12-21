@@ -18,7 +18,7 @@ class UserAdapter:
             bonus_likes=data.get("bonus_likes") or 0,
             messages_left=data.get("messages_left") or 0,
             bonus_messages=data.get("bonus_messages") or 0,
-            banned=data.get("banned") or False,
+            banned=data.get("banned"),
         )
 
     

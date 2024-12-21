@@ -4,6 +4,8 @@ import asyncio
 
 from services import UserService
 
+from telegram.utils.for_banned import banned_handler
+
 
 class DefaultMiddleware(BaseMiddleware):
     user_service: UserService
@@ -23,9 +25,13 @@ class DefaultMiddleware(BaseMiddleware):
             else:
                 user = await self.user_service.get_by_tg_id(event.from_user.id)
             data['user'] = user
+            if user.banned:
+                return await banned_handler(event, user)
             return await handler(event, data)
 
 
+# Sorry for that middleware, I confess, I do not understand what's going on in it
+# It just works, so I adore it
 class MediaGroupMiddleware(BaseMiddleware):
     media_group_data: dict = {}
     user_service: UserService
@@ -43,7 +49,10 @@ class MediaGroupMiddleware(BaseMiddleware):
         if event.__class__ == AIOgramQuery:
             return await handler(event, data)
         message = event
-        data['user'] = await self.user_service.get_by_chat(message.chat)
+        user = await self.user_service.get_by_chat(message.chat)
+        data['user'] = user
+        if user.banned:
+            return await banned_handler(event, user)
         if not message.media_group_id:
             data['media_group'] = None
             return await handler(message, data)

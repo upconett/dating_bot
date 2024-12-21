@@ -172,6 +172,7 @@ admin_handler = AdminHandler(
     ),
     notification_manager=notification_manager,
     user_service=user_service,
+    card_service=card_service,
     stat_service=stat_service,
 )
 

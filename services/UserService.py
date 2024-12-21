@@ -30,6 +30,8 @@ class UserService:
     async def get_by_tg_id(self, tg_id: int) -> User:
         return await self.user_loader.get_by_tg_id(tg_id)
 
+    async def get_by_id(self, internal_id: int) -> User:
+        return await self.user_loader.get_by_internal_id(internal_id)
 
     async def get_by_chat(self, chat: AIOgramChat) -> User:
         try:
@@ -50,3 +52,8 @@ class UserService:
 
     async def ban_user(self, user: User) -> None:
         user.banned = True
+        await self.user_writer.update(user)
+
+    async def unban_user(self, user: User) -> None:
+        user.banned = False
+        await self.user_writer.update(user)

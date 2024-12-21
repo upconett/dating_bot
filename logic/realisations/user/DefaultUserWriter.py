@@ -70,6 +70,7 @@ class DefaultUserWriter(UserWriter):
                 "bonus_likes": user.bonus_likes,
                 "messages_left": user.messages_left,
                 "bonus_messages": user.bonus_messages,
+                "banned": user.banned
             }
         )
         settings_update_status = await self.db.update(
